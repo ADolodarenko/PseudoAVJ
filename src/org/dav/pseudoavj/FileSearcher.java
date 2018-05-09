@@ -6,18 +6,19 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ExecutionException;
 
-public class FileSearcher extends SwingWorker<List<File>, File>
+public class FileSearcher extends SwingWorker<List<File>, ProgressData>
 {
 	private Queue<File> directories;
-	private JLabel statusLabel;
+	private PAVFrame frame;
 	
-	public FileSearcher(File initDirectory, JLabel statusLabel)
+	public FileSearcher(File initDirectory, PAVFrame frame)
 	{
 		this.directories = new LinkedList<>();
 		this.directories.add(initDirectory);
 		
-		this.statusLabel = statusLabel;
+		this.frame = frame;
 	}
 	
 	@Override
@@ -29,31 +30,55 @@ public class FileSearcher extends SwingWorker<List<File>, File>
 		{
 			File currentDirectory = this.directories.remove();
 			
+			ProgressData data = new ProgressData(currentDirectory);
+			
 			File[] items = currentDirectory.listFiles();
-			for (File item : items)
-			{
-				if (item.isDirectory())
-					this.directories.add(item);
-				//else do checking here
-			}
 			
-			publish(currentDirectory);
-			
-			Thread.sleep(100);
+			if (items != null)
+				for (File item : items)
+					if (item.isDirectory())
+						this.directories.add(item);
+					else
+						if (isAccurate(item))
+						{
+							files.add(item);
+						
+							data.addFile(item);
+						}
+					
+			publish(data);
 		}
 		
 		return files;
 	}
 	
-	@Override
-	protected void process(List<File> chunks)
+	private boolean isAccurate(File item)
 	{
-		this.statusLabel.setText(chunks.get(chunks.size() - 1).getAbsolutePath());
+		return true;
+	}
+	
+	@Override
+	protected void process(List<ProgressData> chunks)
+	{
+		if (isCancelled()) return;
+		
+		frame.updateData(chunks);
 	}
 	
 	@Override
 	protected void done()
 	{
-		this.statusLabel.setText("Ready.");
+		try
+		{
+			frame.fillData(get());
+		}
+		catch (InterruptedException e)
+		{
+			e.printStackTrace();
+		}
+		catch (ExecutionException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.List;
 
 public class PAVFrame extends JFrame
 {
@@ -12,12 +13,13 @@ public class PAVFrame extends JFrame
 	
 	private JFileChooser fileChooser;
 	
-	private SwingWorker<java.util.List<File>, File> searcher;
+	private SwingWorker<java.util.List<File>, ProgressData> searcher;
 	
 	private JTextField pathTextField;
 	private JButton pathButton;
 	private JButton searchButton;
 	private JButton paramsButton;
+	private DefaultListModel<String> listModel;
 	private JList<String> filesList;
 	private JLabel statusLine;
 	
@@ -55,7 +57,9 @@ public class PAVFrame extends JFrame
 	
 	private JScrollPane initListPane()
 	{
-		filesList = new JList<>();
+		listModel = new DefaultListModel<>();
+		
+		filesList = new JList<>(listModel);
 		filesList.setVisibleRowCount(ROWS);
 		
 		return new JScrollPane(filesList);
@@ -114,7 +118,7 @@ public class PAVFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				searcher = new FileSearcher(new File(pathTextField.getText()), statusLine);
+				searcher = new FileSearcher(new File(pathTextField.getText()), PAVFrame.this);
 				searcher.execute();
 			}
 		});
@@ -132,5 +136,24 @@ public class PAVFrame extends JFrame
 		panel.add(paramsButton);
 		
 		return panel;
+	}
+	
+	public void updateData(List<ProgressData> chunks)
+	{
+		for (ProgressData data : chunks)
+			for (File file : data.getFiles())
+				listModel.addElement(file.getAbsolutePath());
+		
+		statusLine.setText(chunks.get(chunks.size() - 1).getCurrentDirectory().getAbsolutePath());
+	}
+	
+	public void fillData(List<File> files)
+	{
+		listModel.clear();
+		
+		for (File file : files)
+			listModel.addElement(file.getAbsolutePath());
+		
+		statusLine.setText("Ready.");
 	}
 }
