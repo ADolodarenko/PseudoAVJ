@@ -7,13 +7,15 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 
-public class PAVFrame extends JFrame
+public class PAVFrame extends JFrame implements ResultView<ProgressData, List<File>, String>
 {
 	private static final int ROWS = 20;
 	
 	private JFileChooser fileChooser;
 	
 	private SwingWorker<java.util.List<File>, ProgressData> searcher;
+	
+	private JFrame attrsFrame;
 	
 	private JTextField pathTextField;
 	private JButton pathButton;
@@ -27,13 +29,7 @@ public class PAVFrame extends JFrame
 	{
 		setTitle("Pseudo AV in Java");
 		
-		initFileChooser();
-		
-		add(initCommandPanel(), BorderLayout.NORTH);
-		add(initStatusBar(), BorderLayout.SOUTH);
-		add(initListPane());
-		
-		pack();
+		initComponents();
 	}
 	
 	private void initFileChooser()
@@ -41,6 +37,17 @@ public class PAVFrame extends JFrame
 		fileChooser = new JFileChooser(".");
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fileChooser.setAcceptAllFileFilterUsed(false);
+	}
+	
+	private void initComponents()
+	{
+		initFileChooser();
+		
+		add(initCommandPanel(), BorderLayout.NORTH);
+		add(initStatusBar(), BorderLayout.SOUTH);
+		add(initListPane());
+		
+		pack();
 	}
 	
 	private JPanel initStatusBar()
@@ -118,7 +125,7 @@ public class PAVFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				searcher = new FileSearcher(new File(pathTextField.getText()), PAVFrame.this);
+				searcher = new FileSearcher(new File(pathTextField.getText()), null, PAVFrame.this);
 				searcher.execute();
 			}
 		});
@@ -130,7 +137,14 @@ public class PAVFrame extends JFrame
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				;
+				if (attrsFrame == null)
+				{
+					attrsFrame = new AttrsFrame();
+					attrsFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+				}
+				
+				attrsFrame.setLocationRelativeTo(PAVFrame.this);
+				attrsFrame.setVisible(true);
 			}
 		});
 		panel.add(paramsButton);
@@ -138,6 +152,8 @@ public class PAVFrame extends JFrame
 		return panel;
 	}
 	
+	
+	@Override
 	public void updateData(List<ProgressData> chunks)
 	{
 		for (ProgressData data : chunks)
@@ -147,13 +163,14 @@ public class PAVFrame extends JFrame
 		statusLine.setText(chunks.get(chunks.size() - 1).getCurrentDirectory().getAbsolutePath());
 	}
 	
-	public void fillData(List<File> files)
+	@Override
+	public void showResult(List<File> data, String message)
 	{
 		listModel.clear();
 		
-		for (File file : files)
+		for (File file : data)
 			listModel.addElement(file.getAbsolutePath());
 		
-		statusLine.setText("Ready.");
+		statusLine.setText(message);
 	}
 }
