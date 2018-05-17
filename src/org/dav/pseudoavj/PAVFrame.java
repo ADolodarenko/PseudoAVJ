@@ -15,7 +15,8 @@ public class PAVFrame extends JFrame implements ResultView<ProgressData, List<Fi
 	
 	private SwingWorker<java.util.List<File>, ProgressData> searcher;
 	
-	private JFrame attrsFrame;
+	private AttrDialog attrDialog;
+	private FileAttrs searchAttributes;
 	
 	private JTextField pathTextField;
 	private JButton pathButton;
@@ -125,7 +126,7 @@ public class PAVFrame extends JFrame implements ResultView<ProgressData, List<Fi
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				searcher = new FileSearcher(new File(pathTextField.getText()), null, PAVFrame.this);
+				searcher = new FileSearcher(new File(pathTextField.getText()), searchAttributes, PAVFrame.this);
 				searcher.execute();
 			}
 		});
@@ -137,14 +138,17 @@ public class PAVFrame extends JFrame implements ResultView<ProgressData, List<Fi
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				if (attrsFrame == null)
+				if (attrDialog == null)
 				{
-					attrsFrame = new AttrsFrame();
-					attrsFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+					attrDialog = new AttrDialog(PAVFrame.this);
+					attrDialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 				}
-				
-				attrsFrame.setLocationRelativeTo(PAVFrame.this);
-				attrsFrame.setVisible(true);
+
+				attrDialog.setLocationRelativeTo(PAVFrame.this);
+				attrDialog.setVisible(true);
+
+				if (attrDialog.getResult() == AttrDialog.OK_OPTION)
+					searchAttributes = attrDialog.getAttrs();
 			}
 		});
 		panel.add(paramsButton);

@@ -83,7 +83,7 @@ public class FileSearcher extends SwingWorker<List<File>, ProgressData>
 			
 			if (mask != null)
 			{
-				mask = mask.trim();
+				mask = "\\." + mask.trim() + "\\.";
 				
 				if (!"".equals(mask))
 					pattern = Pattern.compile(mask, Pattern.CASE_INSENSITIVE);
@@ -159,9 +159,9 @@ public class FileSearcher extends SwingWorker<List<File>, ProgressData>
 			return false;
 		}
 		
-		return checkFileTime(searchFileAttrs.getCreated(), fileAttributes.creationTime()) &&
-				checkFileTime(searchFileAttrs.getLastModified(), fileAttributes.lastModifiedTime()) &&
-				checkFileTime(searchFileAttrs.getLastAccessed(), fileAttributes.lastAccessTime());
+		return checkFileTime(searchFileAttrs.getFileTimePeriod(), fileAttributes.creationTime()) ||
+				checkFileTime(searchFileAttrs.getFileTimePeriod(), fileAttributes.lastModifiedTime()) ||
+				checkFileTime(searchFileAttrs.getFileTimePeriod(), fileAttributes.lastAccessTime());
 	}
 	
 	private boolean checkFileTime(FileAttrs.FileTimePeriod period, FileTime time)

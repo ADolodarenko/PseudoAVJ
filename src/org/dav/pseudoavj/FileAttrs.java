@@ -6,24 +6,18 @@ public class FileAttrs
 {
 	private String nameMask;
 	private FileVisibility visibility;
-	private FileTimePeriod created;
-	private FileTimePeriod lastModified;
-	private FileTimePeriod lastAccessed;
-	
+	private FileTimePeriod fileTimePeriod;
+
 	public FileAttrs(String nameMask, FileVisibility visibility,
-					 Long createdFrom, Long createdTo,
-					 Long lastModifiedFrom, Long lastModifiedTo,
-					 Long lastAccessedFrom, Long lastAccessedTo)
+					 Long fileTimePeriodFrom, Long fileTimePeriodTo)
 	{
 		this.nameMask = nameMask;
 		this.visibility = visibility;
 		
-		setFileTimePeriod(created, createdFrom, createdTo);
-		setFileTimePeriod(lastModified, lastModifiedFrom, lastModifiedTo);
-		setFileTimePeriod(lastAccessed, lastAccessedFrom, lastAccessedTo);
+		setFileTimePeriod(fileTimePeriodFrom, fileTimePeriodTo);
 	}
 	
-	private void setFileTimePeriod(FileTimePeriod period, Long from, Long to)
+	private void setFileTimePeriod(Long from, Long to)
 	{
 		if (from != null || to != null)
 		{
@@ -33,7 +27,7 @@ public class FileAttrs
 			if (toValue < fromValue)
 				toValue = Long.MAX_VALUE;
 			
-			period = new FileTimePeriod(fromValue, toValue);
+			fileTimePeriod = new FileTimePeriod(fromValue, toValue);
 		}
 	}
 	
@@ -47,19 +41,9 @@ public class FileAttrs
 		return visibility;
 	}
 	
-	public FileTimePeriod getCreated()
+	public FileTimePeriod getFileTimePeriod()
 	{
-		return created;
-	}
-	
-	public FileTimePeriod getLastModified()
-	{
-		return lastModified;
-	}
-	
-	public FileTimePeriod getLastAccessed()
-	{
-		return lastAccessed;
+		return fileTimePeriod;
 	}
 	
 	public class FileTimePeriod
