@@ -126,8 +126,22 @@ public class PAVFrame extends JFrame implements ResultView<ProgressData, List<Fi
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				searcher = new FileSearcher(new File(pathTextField.getText()), searchAttributes, PAVFrame.this);
-				searcher.execute();
+				if (searchButton.getText().equals("Search"))
+				{
+					clearResults();
+
+					searcher = new FileSearcher(new File(pathTextField.getText()), searchAttributes, PAVFrame.this);
+					searcher.execute();
+
+					blockControls();
+				}
+				else
+				{
+					if (searcher != null)
+						searcher.cancel(true);
+					else
+						activateControls();
+				}
 			}
 		});
 		panel.add(searchButton);
@@ -170,11 +184,46 @@ public class PAVFrame extends JFrame implements ResultView<ProgressData, List<Fi
 	@Override
 	public void showResult(List<File> data, String message)
 	{
-		listModel.clear();
-		
-		for (File file : data)
-			listModel.addElement(file.getAbsolutePath());
+		if (data != null)
+		{
+			listModel.clear();
+
+			for (File file : data)
+				listModel.addElement(file.getAbsolutePath());
+		}
 		
 		statusLine.setText(message);
+	}
+
+	@Override
+	public void activateControls()
+	{
+		searchButton.setText("Search");
+
+		setControlsEnabled(true);
+	}
+
+	@Override
+	public void blockControls()
+	{
+		searchButton.setText("Stop");
+
+		setControlsEnabled(false);
+	}
+
+	private void setControlsEnabled(boolean enabled)
+	{
+		pathTextField.setEnabled(enabled);
+		pathButton.setEnabled(enabled);
+		paramsButton.setEnabled(enabled);
+	}
+
+	private void clearResults()
+	{
+		if (listModel != null)
+			listModel.clear();
+
+		if (statusLine != null)
+			statusLine.setText("Ready.");
 	}
 }

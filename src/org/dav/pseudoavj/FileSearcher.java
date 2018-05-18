@@ -12,17 +12,16 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class FileSearcher extends SwingWorker<List<File>, ProgressData>
 {
 	private Queue<File> directories;
 	private FileAttrs searchFileAttrs;
 	private ResultView<ProgressData, List<File>, String> view;
-	
-	private Pattern pattern;
+
+	private String fileNameMask;
 	
 	private int scannedDirsCount;
 	private int filesFound;
@@ -79,14 +78,14 @@ public class FileSearcher extends SwingWorker<List<File>, ProgressData>
 	{
 		if (searchFileAttrs != null)
 		{
-			String mask = searchFileAttrs.getNameMask();
-			
-			if (mask != null)
+			fileNameMask = searchFileAttrs.getNameMask();
+
+			if (fileNameMask != null)
 			{
-				mask = "\\." + mask.trim() + "\\.";
-				
-				if (!"".equals(mask))
-					pattern = Pattern.compile(mask, Pattern.CASE_INSENSITIVE);
+				fileNameMask = fileNameMask.trim();
+
+				if ("".equals(fileNameMask))
+					fileNameMask = null;
 			}
 		}
 	}
@@ -113,12 +112,8 @@ public class FileSearcher extends SwingWorker<List<File>, ProgressData>
 	
 	private boolean checkName(File file)
 	{
-		if (pattern != null)
-		{
-			Matcher matcher = pattern.matcher(file.getName());
-			
-			return matcher.matches();
-		}
+		if (fileNameMask != null)
+			return file.getName().contains(fileNameMask);
 		else
 			return true;
 	}
@@ -183,19 +178,24 @@ public class FileSearcher extends SwingWorker<List<File>, ProgressData>
 	@Override
 	protected void done()
 	{
+		view.activateControls();
+
 		String message = scannedDirsCount + " dir(s) scanned; " + filesFound + " file(s) found. Ready.";
-		
-		try
-		{
-			view.showResult(get(), message);
-		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
-		catch (ExecutionException e)
-		{
-			e.printStackTrace();
-		}
+
+		List<File> result = null;
+
+		if (!isCancelled())
+			try
+			{
+				result = get();
+			}
+			catch (InterruptedException e)
+			{}
+			catch (ExecutionException e)
+			{}
+			catch (CancellationException e)
+			{}
+
+		view.showResult(result, message);
 	}
 }

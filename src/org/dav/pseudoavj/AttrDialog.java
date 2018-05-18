@@ -231,8 +231,8 @@ public class AttrDialog extends JDialog
 		String nameMask = maskTextField.isEnabled() ? maskTextField.getText() : null;
 		FileAttrs.FileVisibility visibility = visibilityCombo.isEnabled() ?
 				visibilityCombo.getItemAt(visibilityCombo.getSelectedIndex()) : null;
-		Long from = null;
-		Long to = null;
+		Long from = ((SpinnerDateModel)dateTimeSpinnerFrom.getModel()).getDate().getTime();
+		Long to = ((SpinnerDateModel)dateTimeSpinnerTo.getModel()).getDate().getTime();
 
 		attributes = new FileAttrs(nameMask, visibility, from, to);
 	}
