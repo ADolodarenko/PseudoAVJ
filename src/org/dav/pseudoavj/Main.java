@@ -1,5 +1,7 @@
 package org.dav.pseudoavj;
 
+import org.dav.pseudoavj.view.PAVFrame;
+
 import javax.swing.*;
 import java.awt.*;
 
