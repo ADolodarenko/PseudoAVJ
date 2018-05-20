@@ -4,6 +4,7 @@ import org.dav.pseudoavj.logic.FileSearcherAdvanced;
 import org.dav.pseudoavj.model.*;
 
 import javax.swing.*;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
@@ -57,7 +58,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		add(initCommandPanel(), BorderLayout.NORTH);
 		add(initStatusBar(), BorderLayout.SOUTH);
 		//add(initListPane());
-		add(initTablePane());
+		add(initTablePanel());
 		
 		pack();
 	}
@@ -84,7 +85,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		return new JScrollPane(filesList);
 	}
 	
-	private JScrollPane initTablePane()
+	private JPanel initTablePanel()
 	{
 		tableModel = new FileMetaDataTableModel();
 		filesTable = new JTable(tableModel);
@@ -95,7 +96,14 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		for (int i = 2; i < columnModel.getColumnCount(); i++)
 			columnModel.getColumn(i).setCellRenderer(renderer);
 		
-		return new JScrollPane(filesTable);
+		JScrollPane tablePane = new JScrollPane(filesTable);
+		
+		JPanel tablePanel = new JPanel(new BorderLayout());
+		tablePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
+															  "Result", TitledBorder.TOP, TitledBorder.CENTER));
+		tablePanel.add(tablePane, BorderLayout.CENTER);
+		
+		return tablePanel;
 	}
 	
 	private JPanel initCommandPanel()
@@ -254,7 +262,14 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			}
 			else if (object instanceof FileMetaData)
 			{
-				//TODO: realize rewriting data to FileMetaDataTableModel
+				tableModel.clear();
+				
+				for (Object row : data)
+				{
+					FileMetaData element = (FileMetaData) row;
+					
+					tableModel.addRow(element);
+				}
 			}
 		}
 		
