@@ -15,18 +15,18 @@ import java.util.Queue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
-public class FileSearcher extends SwingWorker<List<File>, ProgressData>
+public class FileSearcher extends SwingWorker<List<Object>, Object>
 {
 	private Queue<File> directories;
 	private FileAttrs searchFileAttrs;
-	private ResultView<ProgressData, List<File>, String> view;
+	private ResultView<Object, List<Object>, String> view;
 
 	private String fileNameMask;
 	
 	private int scannedDirsCount;
 	private int filesFound;
 	
-	public FileSearcher(File initDirectory, FileAttrs searchFileAttrs, ResultView<ProgressData, List<File>, String> view)
+	public FileSearcher(File initDirectory, FileAttrs searchFileAttrs, ResultView<Object, List<Object>, String> view)
 	{
 		this.directories = new LinkedList<>();
 		this.directories.add(initDirectory);
@@ -41,9 +41,9 @@ public class FileSearcher extends SwingWorker<List<File>, ProgressData>
 	}
 	
 	@Override
-	protected List<File> doInBackground() throws Exception
+	protected List<Object> doInBackground() throws Exception
 	{
-		List<File> files = new ArrayList<>();
+		List<Object> files = new ArrayList<>();
 		
 		while (!isCancelled() && !this.directories.isEmpty())
 		{
@@ -168,7 +168,7 @@ public class FileSearcher extends SwingWorker<List<File>, ProgressData>
 	}
 	
 	@Override
-	protected void process(List<ProgressData> chunks)
+	protected void process(List<Object> chunks)
 	{
 		if (isCancelled()) return;
 		
@@ -182,7 +182,7 @@ public class FileSearcher extends SwingWorker<List<File>, ProgressData>
 
 		String message = scannedDirsCount + " dir(s) scanned; " + filesFound + " file(s) found. Ready.";
 
-		List<File> result = null;
+		List<Object> result = null;
 
 		if (!isCancelled())
 			try

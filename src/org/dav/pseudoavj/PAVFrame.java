@@ -7,13 +7,13 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 
-public class PAVFrame extends JFrame implements ResultView<ProgressData, List<File>, String>
+public class PAVFrame extends JFrame implements ResultView<Object, List<Object>, String>
 {
 	private static final int ROWS = 20;
 	
 	private JFileChooser fileChooser;
 	
-	private SwingWorker<java.util.List<File>, ProgressData> searcher;
+	private SwingWorker<java.util.List<Object>, Object> searcher;
 	
 	private AttrDialog attrDialog;
 	private FileAttrs searchAttributes;
@@ -172,24 +172,57 @@ public class PAVFrame extends JFrame implements ResultView<ProgressData, List<Fi
 	
 	
 	@Override
-	public void updateData(List<ProgressData> chunks)
+	public void updateData(List<Object> chunks)
 	{
-		for (ProgressData data : chunks)
-			for (File file : data.getFiles())
-				listModel.addElement(file.getAbsolutePath());
-		
-		statusLine.setText(chunks.get(chunks.size() - 1).getCurrentDirectory().getAbsolutePath());
+		if (chunks != null && !chunks.isEmpty())
+		{
+			Object object = chunks.get(chunks.size() - 1);
+
+			if (object instanceof ProgressData)
+			{
+				ProgressData item = (ProgressData) object;
+
+				statusLine.setText(item.getCurrentDirectory().getAbsolutePath());
+
+				for (Object chunk : chunks)
+				{
+					ProgressData element = (ProgressData) chunk;
+
+					for (File file : element.getFiles())
+						listModel.addElement(file.getAbsolutePath());
+				}
+			}
+			else if (object instanceof ProgressDataAdvanced)
+			{
+				ProgressDataAdvanced item = (ProgressDataAdvanced) object;
+
+				//TODO: realize adding data to FileMetaDataTableModel
+			}
+		}
 	}
 	
 	@Override
-	public void showResult(List<File> data, String message)
+	public void showResult(List<Object> data, String message)
 	{
-		if (data != null)
+		if (data != null && !data.isEmpty())
 		{
-			listModel.clear();
+			Object object = data.get(0);
 
-			for (File file : data)
-				listModel.addElement(file.getAbsolutePath());
+			if (object instanceof File)
+			{
+				listModel.clear();
+
+				for (Object row : data)
+				{
+					File element = (File) row;
+
+					listModel.addElement(element.getAbsolutePath());
+				}
+			}
+			else if (object instanceof FileMetaData)
+			{
+				//TODO: realize rewriting data to FileMetaDataTableModel
+			}
 		}
 		
 		statusLine.setText(message);
