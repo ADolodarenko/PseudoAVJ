@@ -15,9 +15,12 @@ public class AttrDialog extends JDialog
 
     private int result;
     private FileAttrs attributes;
-
+	
+	private JCheckBox maskCheck;
 	private JTextField maskTextField;
+	private JCheckBox visibilityCheck;
 	private JComboBox<FileAttrs.FileVisibility> visibilityCombo;
+	private JCheckBox fileTimeCheck;
 	private JSpinner dateTimeSpinnerFrom;
 	private JSpinner dateTimeSpinnerTo;
 
@@ -70,7 +73,7 @@ public class AttrDialog extends JDialog
 
 		GridBagConstraints constraints = new GridBagConstraints();
 
-		JCheckBox maskCheck = new JCheckBox("File name pattern: ");
+		maskCheck = new JCheckBox("File name pattern: ");
 		maskCheck.addItemListener(new ItemListener()
 		{
 			@Override
@@ -104,7 +107,7 @@ public class AttrDialog extends JDialog
 		maskCheck.setSelected(true);
 
 		//Visibility
-		JCheckBox visibilityCheck = new JCheckBox("Visibility: ");
+		visibilityCheck = new JCheckBox("Visibility: ");
 		visibilityCheck.addItemListener(new ItemListener()
 		{
 			@Override
@@ -135,7 +138,7 @@ public class AttrDialog extends JDialog
 		visibilityCombo.setEnabled(false);
 
 		//File time
-		JCheckBox fileTimeCheck = new JCheckBox("File date & time: ");
+		fileTimeCheck = new JCheckBox("File date & time: ");
 		fileTimeCheck.addItemListener(new ItemListener()
 		{
 			@Override
@@ -250,13 +253,21 @@ public class AttrDialog extends JDialog
 		if (attributes != null)
 		{
 			String nameMask = attributes.getNameMask();
+			maskCheck.setSelected(nameMask != null);
 			maskTextField.setText(nameMask != null ? nameMask : "");
 
 			FileAttrs.FileVisibility visibility = attributes.getVisibility();
+			visibilityCheck.setSelected(visibility != null);
 			if (visibility != null)
 				visibilityCombo.setSelectedItem(visibility);
-
-			//File times?
+			
+			FileAttrs.FileTimePeriod period = attributes.getFileTimePeriod();
+			fileTimeCheck.setSelected(period != null);
+			if (period != null)
+			{
+				((SpinnerDateModel) dateTimeSpinnerFrom.getModel()).getDate().setTime(period.getFrom().toMillis());
+				((SpinnerDateModel) dateTimeSpinnerTo.getModel()).getDate().setTime(period.getTo().toMillis());
+			}
 		}
 	}
 	

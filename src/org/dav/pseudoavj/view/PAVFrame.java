@@ -2,6 +2,8 @@ package org.dav.pseudoavj.view;
 
 import org.dav.pseudoavj.logic.FileSearcherAdvanced;
 import org.dav.pseudoavj.model.*;
+import org.dav.pseudoavj.util.AttrsKeeper;
+import org.dav.pseudoavj.util.PropertiesAttrsKeeper;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -24,6 +26,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	
 	private AttrDialog attrDialog;
 	private FileAttrs searchAttributes;
+	private AttrsKeeper attrsKeeper;
 	
 	private JTextField pathTextField;
 	private JButton pathButton;
@@ -44,6 +47,20 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		initComponents();
 	}
 	
+	private void initComponents()
+	{
+		initFileChooser();
+		initAttributes();
+		
+		add(initCommandPanel(), BorderLayout.NORTH);
+		add(initStatusBar(), BorderLayout.SOUTH);
+		add(initTablePanel());
+		
+		//add(initListPane());
+		
+		pack();
+	}
+	
 	private void initFileChooser()
 	{
 		fileChooser = new JFileChooser(".");
@@ -51,16 +68,12 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		fileChooser.setAcceptAllFileFilterUsed(false);
 	}
 	
-	private void initComponents()
+	private void initAttributes()
 	{
-		initFileChooser();
+		attrsKeeper = new PropertiesAttrsKeeper(new File("pav.properties"));
+		searchAttributes = new FileAttrs();
 		
-		add(initCommandPanel(), BorderLayout.NORTH);
-		add(initStatusBar(), BorderLayout.SOUTH);
-		//add(initListPane());
-		add(initTablePanel());
-		
-		pack();
+		searchAttributes.load(attrsKeeper);
 	}
 	
 	private JPanel initStatusBar()
@@ -191,11 +204,15 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 					attrDialog.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 				}
 
+				attrDialog.setAttrs(searchAttributes);
 				attrDialog.setLocationRelativeTo(PAVFrame.this);
 				attrDialog.setVisible(true);
 
 				if (attrDialog.getResult() == AttrDialog.OK_OPTION)
+				{
 					searchAttributes = attrDialog.getAttrs();
+					searchAttributes.save(attrsKeeper);
+				}
 			}
 		});
 		panel.add(paramsButton);

@@ -1,5 +1,8 @@
 package org.dav.pseudoavj.model;
 
+import org.dav.pseudoavj.util.AttrsKeeper;
+
+import javax.swing.*;
 import java.nio.file.attribute.FileTime;
 
 public class FileAttrs
@@ -8,6 +11,8 @@ public class FileAttrs
 	private FileVisibility visibility;
 	private FileTimePeriod fileTimePeriod;
 
+	public FileAttrs(){}
+	
 	public FileAttrs(String nameMask, FileVisibility visibility,
 					 Long fileTimePeriodFrom, Long fileTimePeriodTo)
 	{
@@ -44,6 +49,23 @@ public class FileAttrs
 	public FileTimePeriod getFileTimePeriod()
 	{
 		return fileTimePeriod;
+	}
+	
+	public void save(AttrsKeeper keeper)
+	{
+		if (keeper != null)
+			keeper.save(this);
+	}
+	
+	public void load(AttrsKeeper keeper)
+	{
+		boolean loaded = false;
+		
+		if (keeper != null)
+			loaded = keeper.load(this);
+		
+		if (!loaded) JOptionPane.showMessageDialog(null, "Can't load search attributes.",
+												   "Warning", JOptionPane.WARNING_MESSAGE);
 	}
 	
 	public class FileTimePeriod
