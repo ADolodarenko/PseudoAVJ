@@ -21,8 +21,18 @@ public class FileAttrs
 		
 		setFileTimePeriod(fileTimePeriodFrom, fileTimePeriodTo);
 	}
-	
-	private void setFileTimePeriod(Long from, Long to)
+
+	public void setNameMask(String nameMask)
+	{
+		this.nameMask = nameMask;
+	}
+
+	public void setVisibility(FileVisibility visibility)
+	{
+		this.visibility = visibility;
+	}
+
+	public void setFileTimePeriod(Long from, Long to)
 	{
 		if (from != null || to != null)
 		{
@@ -53,8 +63,13 @@ public class FileAttrs
 	
 	public void save(AttrsKeeper keeper)
 	{
+		boolean saved = false;
+
 		if (keeper != null)
-			keeper.save(this);
+			saved = keeper.save(this);
+
+		if (!saved) JOptionPane.showMessageDialog(null, "Can't save search attributes.",
+				"Warning", JOptionPane.WARNING_MESSAGE);
 	}
 	
 	public void load(AttrsKeeper keeper)

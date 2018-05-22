@@ -2,13 +2,16 @@ package org.dav.pseudoavj.util;
 
 import org.dav.pseudoavj.model.FileAttrs;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
 
 public class PropertiesAttrsKeeper implements AttrsKeeper
 {
+	private final static String MASK_STR = "FileNameMask";
+	private final static String VISIBILITY_STR = "FileVisibility";
+	private final static String FROM_STR = "FromDate";
+	private final static String TO_STR = "ToDate";
+
 	private File file;
 	
 	public PropertiesAttrsKeeper(File file)
@@ -21,15 +24,15 @@ public class PropertiesAttrsKeeper implements AttrsKeeper
 	{
 		boolean result = false;
 		
-		if (file.exists())
+		if (attrs != null && file.exists())
 		{
 			Properties properties = new Properties();
 			
-			try (FileInputStream inputStream = new FileInputStream(file))
+			try (FileInputStream stream = new FileInputStream(file))
 			{
-				properties.load(inputStream);
+				properties.load(stream);
 				
-				String nameMask = properties.getProperty("FileNameMask");
+				attrs.setNameMask(properties.getProperty("FileNameMask"));
 				
 				String visibilityString = properties.getProperty("FileVisibility");
 				FileAttrs.FileVisibility visibility = null;
@@ -39,6 +42,8 @@ public class PropertiesAttrsKeeper implements AttrsKeeper
 					visibility = FileAttrs.FileVisibility.VISIBLE;
 				else if ("ANY".equalsIgnoreCase(visibilityString))
 					visibility = FileAttrs.FileVisibility.ANY;
+
+				attrs.setVisibility(visibility);
 				
 				String from = properties.getProperty("FromDate");
 				Long fromValue = null;
@@ -49,8 +54,9 @@ public class PropertiesAttrsKeeper implements AttrsKeeper
 				Long toValue = null;
 				if (to != null)
 					toValue = Long.decode(to);
-				
-				attrs = new FileAttrs(nameMask, visibility, fromValue, toValue);
+
+				if (fromValue != null || toValue != null)
+					attrs.setFileTimePeriod(fromValue, toValue);
 				
 				result = true;
 			}
@@ -63,6 +69,39 @@ public class PropertiesAttrsKeeper implements AttrsKeeper
 	@Override
 	public boolean save(FileAttrs attrs)
 	{
-		return false;
+		boolean result = false;
+
+		if (attrs != null)
+		{
+			Properties properties = new Properties();
+
+			String nameMask = attrs.getNameMask();
+			if (nameMask != null)
+				properties.setProperty(MASK_STR, nameMask);
+
+			FileAttrs.FileVisibility visibility = attrs.getVisibility();
+			if (visibility != null)
+				properties.setProperty(VISIBILITY_STR, visibility.toString());
+
+			FileAttrs.FileTimePeriod period = attrs.getFileTimePeriod();
+			if (period != null)
+			{
+				Long from = period.getFrom().toMillis();
+				Long to = period.getTo().toMillis();
+
+				properties.setProperty(FROM_STR, String.valueOf(from));
+				properties.setProperty(TO_STR, String.valueOf(to));
+			}
+
+			try (FileWriter writer = new FileWriter(file))
+			{
+				properties.store(writer, null);
+
+				result = true;
+			}
+			catch (IOException e) {}
+		}
+
+		return result;
 	}
 }

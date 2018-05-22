@@ -4,6 +4,7 @@ import org.dav.pseudoavj.logic.FileSearcherAdvanced;
 import org.dav.pseudoavj.model.*;
 import org.dav.pseudoavj.util.AttrsKeeper;
 import org.dav.pseudoavj.util.PropertiesAttrsKeeper;
+import org.dav.pseudoavj.util.ResourceManager;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -23,7 +24,9 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	private JFileChooser fileChooser;
 	
 	private SwingWorker<java.util.List<Object>, Object> searcher;
-	
+
+	private String confPath;
+
 	private AttrDialog attrDialog;
 	private FileAttrs searchAttributes;
 	private AttrsKeeper attrsKeeper;
@@ -49,9 +52,11 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	
 	private void initComponents()
 	{
-		initFileChooser();
 		initAttributes();
-		
+		initFileChooser();
+
+		setIconImage(ResourceManager.getInstance().getImageIcon("folder_green_32.png").getImage());
+
 		add(initCommandPanel(), BorderLayout.NORTH);
 		add(initStatusBar(), BorderLayout.SOUTH);
 		add(initTablePanel());
@@ -70,7 +75,9 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	
 	private void initAttributes()
 	{
-		attrsKeeper = new PropertiesAttrsKeeper(new File("pav.properties"));
+		confPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
+
+		attrsKeeper = new PropertiesAttrsKeeper(new File(confPath + "pav.conf"));
 		searchAttributes = new FileAttrs();
 		
 		searchAttributes.load(attrsKeeper);
@@ -167,6 +174,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		JPanel panel = new JPanel();
 		
 		searchButton = new JButton("Search");
+		searchButton.setIcon(ResourceManager.getInstance().getImageIcon("search01.png"));
 		searchButton.addActionListener(new ActionListener()
 		{
 			@Override
@@ -193,6 +201,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		panel.add(searchButton);
 		
 		paramsButton = new JButton("Parameters...");
+		paramsButton.setIcon(ResourceManager.getInstance().getImageIcon("params_16.png"));
 		paramsButton.addActionListener(new ActionListener()
 		{
 			@Override

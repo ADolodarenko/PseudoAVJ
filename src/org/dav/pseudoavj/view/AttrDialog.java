@@ -1,6 +1,7 @@
 package org.dav.pseudoavj.view;
 
 import org.dav.pseudoavj.model.FileAttrs;
+import org.dav.pseudoavj.util.ResourceManager;
 
 import javax.swing.*;
 import java.awt.*;
@@ -202,6 +203,7 @@ public class AttrDialog extends JDialog
 		JPanel commandPanel = new JPanel();
 
 		saveButton = new JButton("Save");
+		saveButton.setIcon(ResourceManager.getInstance().getImageIcon("ok_16.png"));
 		saveButton.addActionListener(new ActionListener()
 		{
 			@Override
@@ -215,6 +217,7 @@ public class AttrDialog extends JDialog
 		commandPanel.add(saveButton);
 
 		cancelButton = new JButton("Cancel");
+		cancelButton.setIcon(ResourceManager.getInstance().getImageIcon("cancel_16.png"));
 		cancelButton.addActionListener(new ActionListener()
 		{
 			@Override
@@ -265,8 +268,8 @@ public class AttrDialog extends JDialog
 			fileTimeCheck.setSelected(period != null);
 			if (period != null)
 			{
-				((SpinnerDateModel) dateTimeSpinnerFrom.getModel()).getDate().setTime(period.getFrom().toMillis());
-				((SpinnerDateModel) dateTimeSpinnerTo.getModel()).getDate().setTime(period.getTo().toMillis());
+				dateTimeSpinnerFrom.getModel().setValue(new Date(period.getFrom().toMillis()));
+				dateTimeSpinnerTo.getModel().setValue(new Date(period.getTo().toMillis()));
 			}
 		}
 	}
