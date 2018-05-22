@@ -1,7 +1,7 @@
 package org.dav.pseudoavj.view;
 
 import org.dav.pseudoavj.model.FileAttrs;
-import org.dav.pseudoavj.util.ResourceManager;
+import org.dav.pseudoavj.ResourceManager;
 
 import javax.swing.*;
 import java.awt.*;

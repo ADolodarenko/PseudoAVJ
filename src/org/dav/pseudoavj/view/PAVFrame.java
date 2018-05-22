@@ -4,7 +4,7 @@ import org.dav.pseudoavj.logic.FileSearcherAdvanced;
 import org.dav.pseudoavj.model.*;
 import org.dav.pseudoavj.util.AttrsKeeper;
 import org.dav.pseudoavj.util.PropertiesAttrsKeeper;
-import org.dav.pseudoavj.util.ResourceManager;
+import org.dav.pseudoavj.ResourceManager;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -24,8 +24,6 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	private JFileChooser fileChooser;
 	
 	private SwingWorker<java.util.List<Object>, Object> searcher;
-
-	private String confPath;
 
 	private AttrDialog attrDialog;
 	private FileAttrs searchAttributes;
@@ -75,9 +73,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	
 	private void initAttributes()
 	{
-		confPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-
-		attrsKeeper = new PropertiesAttrsKeeper(new File(confPath + "pav.conf"));
+		attrsKeeper = new PropertiesAttrsKeeper(ResourceManager.getInstance().getConfig());
 		searchAttributes = new FileAttrs();
 		
 		searchAttributes.load(attrsKeeper);
@@ -306,6 +302,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	public void activateControls()
 	{
 		searchButton.setText("Search");
+		searchButton.setIcon(ResourceManager.getInstance().getImageIcon("search01.png"));
 
 		setControlsEnabled(true);
 	}
@@ -314,6 +311,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	public void blockControls()
 	{
 		searchButton.setText("Stop");
+		searchButton.setIcon(ResourceManager.getInstance().getImageIcon("cancel_16.png"));
 
 		setControlsEnabled(false);
 	}
