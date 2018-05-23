@@ -13,6 +13,8 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -35,6 +37,8 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	private JButton paramsButton;
 	private DefaultListModel<String> listModel;
 	private JList<String> filesList;
+	
+	private JPopupMenu popupMenu;
 	
 	private FileMetaDataTableModel tableModel;
 	private JTable filesTable;
@@ -61,7 +65,14 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		
 		//add(initListPane());
 		
+		initMenus();
+		
 		pack();
+	}
+	
+	private void initMenus()
+	{
+		popupMenu = new FilesTableMenu();
 	}
 	
 	private void initFileChooser()
@@ -105,6 +116,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	{
 		tableModel = new FileMetaDataTableModel();
 		filesTable = new JTable(tableModel);
+		addListeners(filesTable);
 		
 		TableColumnModel columnModel = filesTable.getColumnModel();
 		TableCellRenderer renderer = new FormatRenderer(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss"));
@@ -120,6 +132,38 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		tablePanel.add(tablePane, BorderLayout.CENTER);
 		
 		return tablePanel;
+	}
+	
+	private void addListeners(JTable table)
+	{
+		table.addMouseListener(new MouseAdapter()
+		{
+			@Override
+			public void mousePressed(MouseEvent e)
+			{
+				if (e.getButton() == MouseEvent.BUTTON3)
+				{
+					Object source = e.getSource();
+					if (source instanceof JTable)
+					{
+						/*
+						Point point = e.getPoint();
+						int row = sourceTable.rowAtPoint(point);
+						*/
+						
+						JTable sourceTable = (JTable)source;
+						if (sourceTable.getSelectedRowCount() > 0)
+							doPopup(e);
+					}
+				}
+			}
+		});
+		
+	}
+	
+	private void doPopup(MouseEvent e)
+	{
+		popupMenu.show(e.getComponent(), e.getX(), e.getY());
 	}
 	
 	private JPanel initCommandPanel()
@@ -333,5 +377,58 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 
 		if (statusLine != null)
 			statusLine.setText("Ready.");
+	}
+	
+	private void locateSelectedFiles()
+	{
+		if (filesTable != null && tableModel != null && filesTable.getSelectedRowCount() > 0)
+		{
+			StringBuilder builder = new StringBuilder();
+			
+			for (int i : filesTable.getSelectedRows())
+			{
+				builder.append(tableModel.getValueAt(i, 0).toString());
+				builder.append('\n');
+			}
+			
+			JOptionPane.showMessageDialog(this, builder.toString(), "Selected files",
+										  JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+	
+	private void deleteSelectedFiles()
+	{
+	
+	}
+	
+	class FilesTableMenu extends JPopupMenu
+	{
+		JMenuItem locateFileMenu;
+		JMenuItem deleteFileMenu;
+		
+		FilesTableMenu()
+		{
+			locateFileMenu = new JMenuItem("Locate the file(s)...");
+			locateFileMenu.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					PAVFrame.this.locateSelectedFiles();
+				}
+			});
+			add(locateFileMenu);
+			
+			deleteFileMenu = new JMenuItem("Delete the file(s)");
+			deleteFileMenu.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					PAVFrame.this.deleteSelectedFiles();
+				}
+			});
+			add(deleteFileMenu);
+		}
 	}
 }
