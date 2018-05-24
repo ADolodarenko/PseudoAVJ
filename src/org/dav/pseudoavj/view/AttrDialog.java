@@ -9,7 +9,7 @@ import java.awt.event.*;
 import java.util.Calendar;
 import java.util.Date;
 
-public class AttrDialog extends JDialog
+public class AttrDialog extends JDialog implements AdjustableTitles
 {
     public static final int OK_OPTION = 1;
     public static final int CANCEL_OPTION = 0;
@@ -31,7 +31,7 @@ public class AttrDialog extends JDialog
 	
 	public AttrDialog(JFrame owner)
 	{
-		super(owner, "File attributes for searching", true);
+		super(owner, "", true);
 
 		initComponents();
 
@@ -67,6 +67,8 @@ public class AttrDialog extends JDialog
 
     private void initComponents()
 	{
+		setTitle(getComponentTitle("Attrs_Dialog_Title"));
+
 		JPanel dataPanel = new JPanel();
 		dataPanel.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
 		GridBagLayout dataLayout = new GridBagLayout();
@@ -74,7 +76,7 @@ public class AttrDialog extends JDialog
 
 		GridBagConstraints constraints = new GridBagConstraints();
 
-		maskCheck = new JCheckBox("File name pattern: ");
+		maskCheck = new JCheckBox(getComponentTitle("Attrs_Check_Mask_Title"));
 		maskCheck.addItemListener(new ItemListener()
 		{
 			@Override
@@ -108,7 +110,7 @@ public class AttrDialog extends JDialog
 		maskCheck.setSelected(true);
 
 		//Visibility
-		visibilityCheck = new JCheckBox("Visibility: ");
+		visibilityCheck = new JCheckBox(getComponentTitle("Attrs_Check_Visibility_Title"));
 		visibilityCheck.addItemListener(new ItemListener()
 		{
 			@Override
@@ -139,7 +141,7 @@ public class AttrDialog extends JDialog
 		visibilityCombo.setEnabled(false);
 
 		//File time
-		fileTimeCheck = new JCheckBox("File date & time: ");
+		fileTimeCheck = new JCheckBox(getComponentTitle("Attrs_Check_DateTime_Title"));
 		fileTimeCheck.addItemListener(new ItemListener()
 		{
 			@Override
@@ -176,13 +178,13 @@ public class AttrDialog extends JDialog
 		JPanel timePanel = new JPanel(new GridLayout(1, 2));
 
 		JPanel fromPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		fromPanel.add(new JLabel("From: "));
+		fromPanel.add(new JLabel(getComponentTitle("Attrs_Check_DateTime_From")));
 		fromPanel.add(dateTimeSpinnerFrom);
 
 		timePanel.add(fromPanel);
 
 		JPanel toPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		toPanel.add(new JLabel("To: "));
+		toPanel.add(new JLabel(getComponentTitle("Attrs_Check_DateTime_To")));
 		toPanel.add(dateTimeSpinnerTo);
 
 		timePanel.add(toPanel);
@@ -202,7 +204,7 @@ public class AttrDialog extends JDialog
 		//
 		JPanel commandPanel = new JPanel();
 
-		saveButton = new JButton("Save");
+		saveButton = new JButton(getComponentTitle("Attrs_Save_Button_Title"));
 		saveButton.setIcon(ResourceManager.getInstance().getImageIcon("ok_16.png"));
 		saveButton.addActionListener(new ActionListener()
 		{
@@ -216,7 +218,7 @@ public class AttrDialog extends JDialog
 		});
 		commandPanel.add(saveButton);
 
-		cancelButton = new JButton("Cancel");
+		cancelButton = new JButton(getComponentTitle("Attrs_Cancel_Button_Title"));
 		cancelButton.setIcon(ResourceManager.getInstance().getImageIcon("cancel_16.png"));
 		cancelButton.addActionListener(new ActionListener()
 		{
@@ -282,5 +284,11 @@ public class AttrDialog extends JDialog
 	public void setAttrs(FileAttrs attrs)
 	{
 		attributes = attrs;
+	}
+
+	@Override
+	public String getComponentTitle(String key)
+	{
+		return ResourceManager.getInstance().getBundle().getString(key);
 	}
 }

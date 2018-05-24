@@ -6,6 +6,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class ResourceManager
 {
@@ -19,8 +21,39 @@ public class ResourceManager
         return instance;
     }
 
-    private ResourceManager(){}
-    
+    private Locale currentLocale;
+    private ResourceBundle bundle;
+
+    private ResourceManager()
+    {
+        //setCurrentLocale(Locale.US);
+        setCurrentLocale(new Locale("ru", "RU"));
+    }
+
+    public Locale getCurrentLocale()
+    {
+        return currentLocale;
+    }
+
+    public void setCurrentLocale(Locale currentLocale)
+    {
+        this.currentLocale = currentLocale;
+        bundle = ResourceBundle.getBundle("org.dav.pseudoavj.langs.pseudoavj", this.currentLocale);
+    }
+
+    public void switchCurrentLocale()
+    {
+        if (getCurrentLocale() == Locale.US)
+            setCurrentLocale(new Locale("ru", "RU"));
+        else
+            setCurrentLocale(Locale.US);
+    }
+
+    public ResourceBundle getBundle()
+    {
+        return bundle;
+    }
+
     public File getConfig()
     {
         File result = null;

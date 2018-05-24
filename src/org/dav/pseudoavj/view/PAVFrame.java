@@ -18,8 +18,9 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
-public class PAVFrame extends JFrame implements ResultView<Object, List<Object>, String>
+public class PAVFrame extends JFrame implements ResultView<Object, List<Object>, String>, AdjustableTitles
 {
 	private static final int ROWS = 20;
 	
@@ -35,6 +36,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	private JButton pathButton;
 	private JButton searchButton;
 	private JButton paramsButton;
+	private JButton localeButton;
 	private DefaultListModel<String> listModel;
 	private JList<String> filesList;
 	
@@ -47,9 +49,9 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	
 	public PAVFrame()
 	{
-		setTitle("Pseudo AV in Java");
-		
 		initComponents();
+
+		setTitle(getComponentTitle("Main_Window_Title"));
 	}
 	
 	private void initComponents()
@@ -96,7 +98,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		panel.setLayout(new GridLayout(1, 1));
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 		
-		statusLine = new JLabel("Ready.");
+		statusLine = new JLabel(getComponentTitle("Status_Ready"));
 		panel.add(statusLine, BorderLayout.WEST);
 	
 		return panel;
@@ -128,7 +130,8 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		tablePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
-															  "Result", TitledBorder.TOP, TitledBorder.CENTER));
+				getComponentTitle("Result_Panel_Title"),
+                TitledBorder.TOP, TitledBorder.CENTER));
 		tablePanel.add(tablePane, BorderLayout.CENTER);
 		
 		return tablePanel;
@@ -146,11 +149,6 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 					Object source = e.getSource();
 					if (source instanceof JTable)
 					{
-						/*
-						Point point = e.getPoint();
-						int row = sourceTable.rowAtPoint(point);
-						*/
-						
 						JTable sourceTable = (JTable)source;
 						if (sourceTable.getSelectedRowCount() > 0)
 							doPopup(e);
@@ -186,7 +184,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		panel.setLayout(new BorderLayout());
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 5));
 		
-		JLabel label = new JLabel("Path: ");
+		JLabel label = new JLabel(getComponentTitle("Path_Label_Title"));
 		panel.add(label, BorderLayout.WEST);
 		
 		pathTextField = new JTextField(new File(".").getAbsolutePath());
@@ -213,14 +211,14 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	{
 		JPanel panel = new JPanel();
 		
-		searchButton = new JButton("Search");
+		searchButton = new JButton(getComponentTitle("Search_Button_Title"));
 		searchButton.setIcon(ResourceManager.getInstance().getImageIcon("search01.png"));
 		searchButton.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				if (searchButton.getText().equals("Search"))
+				if (searchButton.getText().equals(getComponentTitle("Search_Button_Title")))
 				{
 					clearResults();
 
@@ -240,7 +238,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		});
 		panel.add(searchButton);
 		
-		paramsButton = new JButton("Parameters...");
+		paramsButton = new JButton(getComponentTitle("Params_Button_Title"));
 		paramsButton.setIcon(ResourceManager.getInstance().getImageIcon("params_16.png"));
 		paramsButton.addActionListener(new ActionListener()
 		{
@@ -265,11 +263,39 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			}
 		});
 		panel.add(paramsButton);
+
+		localeButton = new JButton();
+		localeButton.setIcon(getLocaleButtonImage());
+		localeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				ResourceManager.getInstance().switchCurrentLocale();
+				repaintGUI();
+			}
+		});
+		panel.add(localeButton);
 		
 		return panel;
 	}
-	
-	
+
+	private void repaintGUI()
+	{
+		localeButton.setIcon(getLocaleButtonImage());
+	}
+
+	private Icon getLocaleButtonImage()
+	{
+		Icon result = null;
+
+		if (ResourceManager.getInstance().getCurrentLocale() == Locale.US)
+		    result = ResourceManager.getInstance().getImageIcon("american_16.png");
+		else
+		    result = ResourceManager.getInstance().getImageIcon("russian_16.png");
+
+		return result;
+	}
+
 	@Override
 	public void updateData(List<Object> chunks)
 	{
@@ -345,7 +371,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	@Override
 	public void activateControls()
 	{
-		searchButton.setText("Search");
+		searchButton.setText(getComponentTitle("Search_Button_Title"));
 		searchButton.setIcon(ResourceManager.getInstance().getImageIcon("search01.png"));
 
 		setControlsEnabled(true);
@@ -354,7 +380,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	@Override
 	public void blockControls()
 	{
-		searchButton.setText("Stop");
+		searchButton.setText(getComponentTitle("Stop_Button_Title"));
 		searchButton.setIcon(ResourceManager.getInstance().getImageIcon("cancel_16.png"));
 
 		setControlsEnabled(false);
@@ -376,7 +402,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			tableModel.clear();
 
 		if (statusLine != null)
-			statusLine.setText("Ready.");
+			statusLine.setText(getComponentTitle("Status_Ready"));
 	}
 	
 	private void locateSelectedFiles()
@@ -398,34 +424,41 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	
 	private void deleteSelectedFiles()
 	{
+		;
 	
 	}
-	
-	class FilesTableMenu extends JPopupMenu
+
+    @Override
+    public String getComponentTitle(String key)
+    {
+        return ResourceManager.getInstance().getBundle().getString(key);
+    }
+
+    class FilesTableMenu extends JPopupMenu
 	{
 		JMenuItem locateFileMenu;
 		JMenuItem deleteFileMenu;
 		
 		FilesTableMenu()
 		{
-			locateFileMenu = new JMenuItem("Locate the file(s)...");
+			locateFileMenu = new JMenuItem(getComponentTitle("Locate_Menu_Title"));
 			locateFileMenu.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					PAVFrame.this.locateSelectedFiles();
+					locateSelectedFiles();
 				}
 			});
 			add(locateFileMenu);
 			
-			deleteFileMenu = new JMenuItem("Delete the file(s)");
+			deleteFileMenu = new JMenuItem(getComponentTitle("Delete_Menu_Title"));
 			deleteFileMenu.addActionListener(new ActionListener()
 			{
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					PAVFrame.this.deleteSelectedFiles();
+					deleteSelectedFiles();
 				}
 			});
 			add(deleteFileMenu);

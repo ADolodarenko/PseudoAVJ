@@ -4,11 +4,11 @@ import java.util.Date;
 
 public class FileMetaData
 {
-    public static final String FILE_NAME = "File name";
-    public static final String HIDDEN = "Hidden file";
-    public static final String CREATED = "File created at";
-    public static final String LAST_MODIFIED = "Date of last modify";
-    public static final String LAST_ACCESSED = "Date of last access";
+    public static final String FILE_NAME_STRING = "Column_File_Name_Title";
+    public static final String HIDDEN_STRING = "Column_Hidden_Title";
+    public static final String CREATED_STRING = "Column_Created_Title";
+    public static final String LAST_MODIFIED_STRING = "Column_Last_Modified_Title";
+    public static final String LAST_ACCESSED_STRING = "Column_Last_Accessed_Title";
 
     public static final int FIELD_QUANTITY = 5;
 

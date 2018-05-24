@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ResourceBundleManager">
+    <file url="file://$PROJECT_DIR$/src/org/dav/pseudoavj/langs/pseudoavj.properties" />
+    <file url="file://$PROJECT_DIR$/src/org/dav/pseudoavj/langs/pseudoavj_RU.properties" />
+    <file url="file://$PROJECT_DIR$/src/org/dav/pseudoavj/langs/pseudoavj_en_US.properties" />
+    <custom-resource-bundle>
+      <file value="file://$PROJECT_DIR$/src/org/dav/pseudoavj/langs/pseudoavj.properties" />
+      <file value="file://$PROJECT_DIR$/src/org/dav/pseudoavj/langs/pseudoavj_RU.properties" />
+      <file value="file://$PROJECT_DIR$/src/org/dav/pseudoavj/langs/pseudoavj_en_US.properties" />
+      <base-name>pseudoavj</base-name>
+    </custom-resource-bundle>
+  </component>
+</project>

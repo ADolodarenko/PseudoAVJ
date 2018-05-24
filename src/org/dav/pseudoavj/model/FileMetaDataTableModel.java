@@ -1,11 +1,15 @@
 package org.dav.pseudoavj.model;
 
+import org.dav.pseudoavj.ResourceManager;
+import org.dav.pseudoavj.view.AdjustableTitles;
+
 import javax.swing.table.AbstractTableModel;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class FileMetaDataTableModel extends AbstractTableModel
+public class FileMetaDataTableModel extends AbstractTableModel implements AdjustableTitles
 {
     private List<FileMetaData> data;
     
@@ -76,15 +80,15 @@ public class FileMetaDataTableModel extends AbstractTableModel
         switch (column)
         {
             case 0:
-                return FileMetaData.FILE_NAME;
+                return getComponentTitle(FileMetaData.FILE_NAME_STRING);
             case 1:
-                return FileMetaData.HIDDEN;
+                return getComponentTitle(FileMetaData.HIDDEN_STRING);
             case 2:
-                return FileMetaData.CREATED;
+                return getComponentTitle(FileMetaData.CREATED_STRING);
             case 3:
-                return FileMetaData.LAST_MODIFIED;
+                return getComponentTitle(FileMetaData.LAST_MODIFIED_STRING);
             case 4:
-                return FileMetaData.LAST_ACCESSED;
+                return getComponentTitle(FileMetaData.LAST_ACCESSED_STRING);
                 default:
                     return null;
         }
@@ -110,12 +114,24 @@ public class FileMetaDataTableModel extends AbstractTableModel
         data.add(row);
         fireTableRowsInserted(index, index);
     }
-    
+
+    public void remove(int index)
+    {
+        data.remove(index);
+        fireTableRowsDeleted(index, index);
+    }
+
     public void clear()
     {
         int index1 = data.size()-1;
         data.clear();
         if (index1 >= 0)
             fireTableRowsDeleted(0, index1);
+    }
+
+    @Override
+    public String getComponentTitle(String key)
+    {
+        return ResourceManager.getInstance().getBundle().getString(key);
     }
 }
