@@ -16,7 +16,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -25,6 +30,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	private static final int ROWS = 20;
 	
 	private JFileChooser fileChooser;
+	private Desktop desktop;
 	
 	private SwingWorker<java.util.List<Object>, Object> searcher;
 
@@ -58,6 +64,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	{
 		initAttributes();
 		initFileChooser();
+		initDesktop();
 
 		setIconImage(ResourceManager.getInstance().getImageIcon("folder_green_32.png").getImage());
 
@@ -82,6 +89,17 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		fileChooser = new JFileChooser(".");
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fileChooser.setAcceptAllFileFilterUsed(false);
+	}
+	
+	private void initDesktop()
+	{
+		if (Desktop.isDesktopSupported())
+		{
+			desktop = Desktop.getDesktop();
+			
+			if (!desktop.isSupported(Desktop.Action.BROWSE))
+				desktop = null;
+		}
 	}
 	
 	private void initAttributes()
@@ -409,23 +427,49 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	{
 		if (filesTable != null && tableModel != null && filesTable.getSelectedRowCount() > 0)
 		{
-			StringBuilder builder = new StringBuilder();
-			
 			for (int i : filesTable.getSelectedRows())
 			{
-				builder.append(tableModel.getValueAt(i, 0).toString());
-				builder.append('\n');
+				int rowIndex = filesTable.convertRowIndexToModel(i);
+				FileMetaData row = tableModel.getRow(rowIndex);
+				
+				if (row != null)
+				{
+					URI dir = Paths.get(row.getName()).getParent().toUri();
+					
+					try
+					{
+						desktop.browse(dir);
+					}
+					catch (IOException e)
+					{}
+				}
 			}
-			
-			JOptionPane.showMessageDialog(this, builder.toString(), "Selected files",
-										  JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 	
 	private void deleteSelectedFiles()
 	{
-		;
-	
+		if (filesTable != null && tableModel != null && filesTable.getSelectedRowCount() > 0)
+		{
+			List<FileMetaData> deadRows = new ArrayList<>();
+			
+			for (int i : filesTable.getSelectedRows())
+			{
+				int rowIndex = filesTable.convertRowIndexToModel(i);
+				FileMetaData row = tableModel.getRow(rowIndex);
+				
+				if (row != null)
+				{
+					File file = new File(row.getName());
+					
+					if (file.delete())
+						deadRows.add(row);
+				}
+			}
+			
+			for (FileMetaData row : deadRows)
+				tableModel.remove(row);
+		}
 	}
 
     @Override

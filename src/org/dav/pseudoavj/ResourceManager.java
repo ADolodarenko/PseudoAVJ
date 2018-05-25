@@ -26,8 +26,9 @@ public class ResourceManager
 
     private ResourceManager()
     {
+        Locale locale = new Locale.Builder().setLanguage("ru").setRegion("RU").build();
         //setCurrentLocale(Locale.US);
-        setCurrentLocale(new Locale("ru", "RU"));
+        setCurrentLocale(locale);
     }
 
     public Locale getCurrentLocale()

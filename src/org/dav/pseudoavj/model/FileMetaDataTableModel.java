@@ -114,11 +114,20 @@ public class FileMetaDataTableModel extends AbstractTableModel implements Adjust
         data.add(row);
         fireTableRowsInserted(index, index);
     }
-
-    public void remove(int index)
+    
+    public FileMetaData getRow(int rowIndex)
     {
-        data.remove(index);
-        fireTableRowsDeleted(index, index);
+        return data.get(rowIndex);
+    }
+
+    public void remove(FileMetaData row)
+    {
+        int index = data.indexOf(row);
+        if (index >= 0)
+        {
+            data.remove(index);
+            fireTableRowsDeleted(index, index);
+        }
     }
 
     public void clear()
