@@ -2,6 +2,7 @@ package org.dav.pseudoavj.logic;
 
 import org.dav.pseudoavj.model.FileAttrs;
 import org.dav.pseudoavj.model.FileMetaData;
+import org.dav.pseudoavj.model.IntPair;
 import org.dav.pseudoavj.model.ProgressDataAdvanced;
 import org.dav.pseudoavj.view.ResultView;
 
@@ -21,14 +22,14 @@ public class FileSearcherAdvanced extends SwingWorker<List<Object>, Object>
 {
     private Queue<File> directories;
     private FileAttrs searchFileAttrs;
-    private ResultView<Object, List<Object>, String> view;
+    private ResultView<Object, List<Object>, IntPair> view;
 
     private String fileNameMask;
 
     private int scannedDirsCount;
     private int filesFound;
 
-    public FileSearcherAdvanced(File initDirectory, FileAttrs searchFileAttrs, ResultView<Object, List<Object>, String> view)
+    public FileSearcherAdvanced(File initDirectory, FileAttrs searchFileAttrs, ResultView<Object, List<Object>, IntPair> view)
     {
         this.directories = new LinkedList<>();
         this.directories.add(initDirectory);
@@ -189,8 +190,6 @@ public class FileSearcherAdvanced extends SwingWorker<List<Object>, Object>
     {
         view.activateControls();
 
-        String message = scannedDirsCount + " dir(s) scanned; " + filesFound + " file(s) found. Ready.";
-
         List<Object> result = null;
 
         if (!isCancelled())
@@ -205,6 +204,6 @@ public class FileSearcherAdvanced extends SwingWorker<List<Object>, Object>
             catch (CancellationException e)
             {}
 
-        view.showResult(result, message);
+        view.showResult(result, new IntPair(scannedDirsCount, filesFound));
     }
 }

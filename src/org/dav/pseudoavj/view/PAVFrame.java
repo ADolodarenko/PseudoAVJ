@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 
-public class PAVFrame extends JFrame implements ResultView<Object, List<Object>, String>, AdjustableTitles
+public class PAVFrame extends JFrame implements ResultView<Object, List<Object>, IntPair>, AdjustableTitles
 {
 	private static final int MIN_WIDTH = 400;
 	private static final int MIN_HEIGHT = 300;
@@ -446,7 +446,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	}
 	
 	@Override
-	public void showResult(List<Object> data, String message)
+	public void showResult(List<Object> data, IntPair pair)
 	{
 		if (data != null && !data.isEmpty())
 		{
@@ -476,7 +476,8 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			}
 		}
 		
-		statusLine.setText(message);
+		statusLine.setText(String.format(getComponentTitle("Result_Statistics"),
+										 pair.getFirstInt(), pair.getSecondInt()));
 	}
 
 	@Override
