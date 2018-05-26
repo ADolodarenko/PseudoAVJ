@@ -1,11 +1,13 @@
 package org.dav.pseudoavj.model;
 
+import org.dav.pseudoavj.ResourceManager;
 import org.dav.pseudoavj.util.AttrsKeeper;
+import org.dav.pseudoavj.view.AdjustableTitles;
 
 import javax.swing.*;
 import java.nio.file.attribute.FileTime;
 
-public class FileAttrs
+public class FileAttrs implements Attrs, AdjustableTitles
 {
 	private String nameMask;
 	private FileVisibility visibility;
@@ -61,6 +63,7 @@ public class FileAttrs
 		return fileTimePeriod;
 	}
 	
+	@Override
 	public void save(AttrsKeeper keeper)
 	{
 		boolean saved = false;
@@ -68,10 +71,11 @@ public class FileAttrs
 		if (keeper != null)
 			saved = keeper.save(this);
 
-		if (!saved) JOptionPane.showMessageDialog(null, "Can't save search attributes.",
-				"Warning", JOptionPane.WARNING_MESSAGE);
+		if (!saved) JOptionPane.showMessageDialog(null, getComponentTitle("Fail_Save_Search_Attrs"),
+				getComponentTitle("Warning"), JOptionPane.WARNING_MESSAGE);
 	}
 	
+	@Override
 	public void load(AttrsKeeper keeper)
 	{
 		boolean loaded = false;
@@ -79,8 +83,14 @@ public class FileAttrs
 		if (keeper != null)
 			loaded = keeper.load(this);
 		
-		if (!loaded) JOptionPane.showMessageDialog(null, "Can't load search attributes.",
-												   "Warning", JOptionPane.WARNING_MESSAGE);
+		if (!loaded) JOptionPane.showMessageDialog(null, getComponentTitle("Fail_Load_Search_Attrs"),
+												   getComponentTitle("Warning"), JOptionPane.WARNING_MESSAGE);
+	}
+	
+	@Override
+	public String getComponentTitle(String key)
+	{
+		return ResourceManager.getInstance().getBundle().getString(key);
 	}
 	
 	public class FileTimePeriod

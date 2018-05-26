@@ -11,12 +11,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
+import java.awt.event.*;
+import java.io.*;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,10 +20,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 
 public class PAVFrame extends JFrame implements ResultView<Object, List<Object>, String>, AdjustableTitles
 {
+	private static final int MIN_WIDTH = 400;
+	private static final int MIN_HEIGHT = 300;
 	private static final int ROWS = 20;
+	
+	private Properties properties;
+	
+	private WindowAttrs windowAttributes;
 	
 	private JFileChooser fileChooser;
 	private Desktop desktop;
@@ -62,6 +65,8 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	
 	private void initComponents()
 	{
+		loadProperties();
+		
 		initAttributes();
 		initFileChooser();
 		initDesktop();
@@ -77,6 +82,91 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		initMenus();
 		
 		pack();
+		
+		initFrame();
+	}
+	
+	private void loadProperties()
+	{
+		properties = new Properties();
+		
+		try (FileInputStream stream = new FileInputStream(ResourceManager.getInstance().getConfig()))
+		{
+			properties.load(stream);
+		}
+		catch (IOException e)
+		{
+			JOptionPane.showMessageDialog(this, getComponentTitle("Fail_Load_Properties"),
+										  getComponentTitle("Warning"), JOptionPane.WARNING_MESSAGE);
+		}
+	}
+	
+	private void saveProperties()
+	{
+		try (FileWriter writer = new FileWriter(ResourceManager.getInstance().getConfig()))
+		{
+			properties.store(writer, null);
+		}
+		catch (IOException e)
+		{
+			JOptionPane.showMessageDialog(this, getComponentTitle("Fail_Save_Properties"),
+													  getComponentTitle("Warning"), JOptionPane.WARNING_MESSAGE);
+		}
+	}
+	
+	private void initFrame()
+	{
+		setMinimumSize(new Dimension(MIN_WIDTH, MIN_HEIGHT));
+		
+		addComponentListener(new ComponentAdapter()
+		{
+			@Override
+			public void componentResized(ComponentEvent e)
+			{
+				Dimension currentDim = PAVFrame.this.getSize();
+				Dimension minimumDim = PAVFrame.this.getMinimumSize();
+				
+				if (currentDim.width < minimumDim.width)
+					currentDim.width = minimumDim.width;
+				if (currentDim.height < minimumDim.height)
+					currentDim.height = minimumDim.height;
+				
+				PAVFrame.this.setSize(currentDim);
+			}
+		});
+		
+		if (windowAttributes != null)
+		{
+			if (windowAttributes.isMaximized())
+				setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
+			else
+				setBounds(windowAttributes.getLeftTopCorner().x,
+					  windowAttributes.getLeftTopCorner().y,
+					  windowAttributes.getMeasurements().width,
+					  windowAttributes.getMeasurements().height);
+		}
+		
+		addWindowListener(new WindowAdapter()
+		{
+			@Override
+			public void windowClosing(WindowEvent e)
+			{
+				setWindowAttributes();
+				saveProperties();
+			}
+		});
+	}
+	
+	private void setWindowAttributes()
+	{
+		if (windowAttributes != null)
+		{
+			windowAttributes.setMaximized(getExtendedState() == JFrame.MAXIMIZED_BOTH);
+			windowAttributes.setLeftTopCorner(getBounds().getLocation());
+			windowAttributes.setMeasurements(getSize());
+			
+			windowAttributes.save(attrsKeeper);
+		}
 	}
 	
 	private void initMenus()
@@ -104,10 +194,13 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	
 	private void initAttributes()
 	{
-		attrsKeeper = new PropertiesAttrsKeeper(ResourceManager.getInstance().getConfig());
-		searchAttributes = new FileAttrs();
+		attrsKeeper = new PropertiesAttrsKeeper(properties);
 		
+		searchAttributes = new FileAttrs();
 		searchAttributes.load(attrsKeeper);
+		
+		windowAttributes = new WindowAttrs();
+		windowAttributes.load(attrsKeeper);
 	}
 	
 	private JPanel initStatusBar()

@@ -47,7 +47,6 @@ public class Main
 				
 				JFrame mainFrame = new PAVFrame();
 				mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				mainFrame.setLocationRelativeTo(null);
 				mainFrame.setVisible(true);
 			}
 		});
