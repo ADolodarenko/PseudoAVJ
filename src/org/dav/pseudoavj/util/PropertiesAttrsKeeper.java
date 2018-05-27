@@ -1,5 +1,6 @@
 package org.dav.pseudoavj.util;
 
+import org.dav.pseudoavj.ResourceManager;
 import org.dav.pseudoavj.model.FileAttrs;
 import org.dav.pseudoavj.model.WindowAttrs;
 
@@ -61,6 +62,12 @@ public class PropertiesAttrsKeeper implements AttrsKeeper
 		
 		if (attrs != null && properties != null)
 		{
+			String localeString = properties.getProperty("ApplicationLocale");
+			if ("RU".equalsIgnoreCase(localeString))
+				attrs.setLocale(ResourceManager.RUS_LOCALE);
+			else
+				attrs.setLocale(ResourceManager.ENG_LOCALE);
+			
 			String maximizedString = properties.getProperty("WindowMaximized");
 			if ("true".equalsIgnoreCase(maximizedString))
 				attrs.setMaximized(true);
@@ -141,6 +148,9 @@ public class PropertiesAttrsKeeper implements AttrsKeeper
 		
 		if (attrs != null && properties != null)
 		{
+			properties.setProperty("ApplicationLocale",
+								   attrs.getLocale() == ResourceManager.RUS_LOCALE ? "RU" : "EN");
+			
 			properties.setProperty("WindowMaximized", String.valueOf(attrs.isMaximized()));
 			
 			properties.setProperty("WindowX", String.valueOf(attrs.getLeftTopCorner().x));

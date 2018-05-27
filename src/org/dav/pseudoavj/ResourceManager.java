@@ -12,6 +12,9 @@ import java.util.ResourceBundle;
 public class ResourceManager
 {
     private static ResourceManager instance;
+    
+    public static final Locale RUS_LOCALE = new Locale.Builder().setLanguage("ru").setRegion("RU").build();
+    public static final Locale ENG_LOCALE = new Locale.Builder().setLanguage("en").setRegion("US").build();
 
     public static ResourceManager getInstance()
     {
@@ -26,10 +29,7 @@ public class ResourceManager
 
     private ResourceManager()
     {
-        //Locale locale = new Locale.Builder().setLanguage("en").setRegion("US").build();
-        Locale locale = new Locale.Builder().setLanguage("ru").setRegion("RU").build();
-        
-        setCurrentLocale(locale);
+        setCurrentLocale(ENG_LOCALE);
     }
 
     public Locale getCurrentLocale()
@@ -45,10 +45,10 @@ public class ResourceManager
 
     public void switchCurrentLocale()
     {
-        if (getCurrentLocale() == Locale.US)
-            setCurrentLocale(new Locale("ru", "RU"));
+        if (getCurrentLocale() == ENG_LOCALE)
+            setCurrentLocale(RUS_LOCALE);
         else
-            setCurrentLocale(Locale.US);
+            setCurrentLocale(ENG_LOCALE);
     }
 
     public ResourceBundle getBundle()

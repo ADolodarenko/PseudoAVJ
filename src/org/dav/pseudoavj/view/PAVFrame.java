@@ -14,12 +14,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.URI;
-import java.nio.file.Path;
+import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 
 public class PAVFrame extends JFrame implements ResultView<Object, List<Object>, IntPair>, AdjustableTitles
@@ -27,6 +26,8 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	private static final int MIN_WIDTH = 400;
 	private static final int MIN_HEIGHT = 300;
 	private static final int ROWS = 20;
+	
+	private boolean mustRestart;
 	
 	private Properties properties;
 	
@@ -151,16 +152,55 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			@Override
 			public void windowClosing(WindowEvent e)
 			{
+				cancelSearch();
 				setWindowAttributes();
 				saveProperties();
+				
+				if (mustRestart)
+					restart();
 			}
 		});
+	}
+	
+	private void restart()
+	{
+		String javaCommand = System.getProperty("java.home") +
+				File.separator + "bin" + File.separator + "java";
+		File currentJar = null;
+		
+		try
+		{
+			currentJar = new File(getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
+		}
+		catch (URISyntaxException e){}
+		
+		if (currentJar != null && currentJar.getName().endsWith(".jar"))
+		{
+			List<String> command = new ArrayList<>();
+			command.add(javaCommand);
+			command.add("-jar");
+			command.add(currentJar.getPath());
+			
+			ProcessBuilder builder = new ProcessBuilder(command);
+			try
+			{
+				builder.start();
+			}
+			catch (IOException e){}
+		}
+	}
+	
+	private void cancelSearch()
+	{
+		if (searcher != null && !searcher.isDone() && !searcher.isCancelled())
+			searcher.cancel(false);
 	}
 	
 	private void setWindowAttributes()
 	{
 		if (windowAttributes != null)
 		{
+			windowAttributes.setLocale(ResourceManager.getInstance().getCurrentLocale());
 			windowAttributes.setMaximized(getExtendedState() == JFrame.MAXIMIZED_BOTH);
 			windowAttributes.setLeftTopCorner(getBounds().getLocation());
 			windowAttributes.setMeasurements(getSize());
@@ -201,6 +241,9 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		
 		windowAttributes = new WindowAttrs();
 		windowAttributes.load(attrsKeeper);
+		
+		ResourceManager.getInstance().setCurrentLocale(windowAttributes.getLocale());
+		mustRestart = false;
 	}
 	
 	private JPanel initStatusBar()
@@ -383,6 +426,9 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			{
 				ResourceManager.getInstance().switchCurrentLocale();
 				repaintGUI();
+				
+				mustRestart = true;
+				PAVFrame.this.dispatchEvent(new WindowEvent(PAVFrame.this, WindowEvent.WINDOW_CLOSING));
 			}
 		});
 		panel.add(localeButton);
@@ -399,7 +445,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	{
 		Icon result = null;
 
-		if (ResourceManager.getInstance().getCurrentLocale() == Locale.US)
+		if (ResourceManager.getInstance().getCurrentLocale() == ResourceManager.ENG_LOCALE)
 		    result = ResourceManager.getInstance().getImageIcon("american_16.png");
 		else
 		    result = ResourceManager.getInstance().getImageIcon("russian_16.png");

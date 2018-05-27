@@ -6,20 +6,28 @@ import org.dav.pseudoavj.view.AdjustableTitles;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Locale;
 
 public class WindowAttrs implements Attrs, AdjustableTitles
 {
+	private Locale locale;
 	private boolean maximized;
 	private Point leftTopCorner;
 	private Dimension measurements;
 	
 	public WindowAttrs(){}
 	
-	public WindowAttrs(boolean maximized, Point leftTopCorner, Dimension measurements)
+	public WindowAttrs(Locale locale, boolean maximized, Point leftTopCorner, Dimension measurements)
 	{
+		this.locale = locale;
 		this.maximized = maximized;
 		this.leftTopCorner = leftTopCorner;
 		this.measurements = measurements;
+	}
+	
+	public Locale getLocale()
+	{
+		return locale;
 	}
 	
 	public boolean isMaximized()
@@ -35,6 +43,11 @@ public class WindowAttrs implements Attrs, AdjustableTitles
 	public Dimension getMeasurements()
 	{
 		return measurements;
+	}
+	
+	public void setLocale(Locale locale)
+	{
+		this.locale = locale;
 	}
 	
 	public void setMaximized(boolean maximized)
