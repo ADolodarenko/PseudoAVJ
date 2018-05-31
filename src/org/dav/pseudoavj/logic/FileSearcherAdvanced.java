@@ -36,6 +36,8 @@ public class FileSearcherAdvanced extends SwingWorker<List<Object>, Object>
 
         this.searchFileAttrs = searchFileAttrs;
         this.view = view;
+        
+        prepareNamePattern();
 
         scannedDirsCount = 0;
         filesFound = 0;
@@ -78,6 +80,22 @@ public class FileSearcherAdvanced extends SwingWorker<List<Object>, Object>
 
         return files;
     }
+	
+	private void prepareNamePattern()
+	{
+		if (searchFileAttrs != null)
+		{
+			fileNameMask = searchFileAttrs.getNameMask();
+			
+			if (fileNameMask != null)
+			{
+				fileNameMask = fileNameMask.trim();
+				
+				if ("".equals(fileNameMask))
+					fileNameMask = null;
+			}
+		}
+	}
 
     private FileMetaData accept(File file)
     {
