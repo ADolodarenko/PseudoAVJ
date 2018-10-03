@@ -9,7 +9,7 @@ import java.awt.event.*;
 import java.util.Calendar;
 import java.util.Date;
 
-public class AttrDialog extends JDialog implements AdjustableTitles
+public class AttrDialog extends JDialog implements TitleGetter
 {
     public static final int OK_OPTION = 1;
     public static final int CANCEL_OPTION = 0;

@@ -2,13 +2,13 @@ package org.dav.pseudoavj.model;
 
 import org.dav.pseudoavj.ResourceManager;
 import org.dav.pseudoavj.util.AttrsKeeper;
-import org.dav.pseudoavj.view.AdjustableTitles;
+import org.dav.pseudoavj.view.TitleGetter;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Locale;
 
-public class WindowAttrs implements Attrs, AdjustableTitles
+public class WindowAttrs implements Attrs, TitleGetter
 {
 	private Locale locale;
 	private boolean maximized;
@@ -24,7 +24,7 @@ public class WindowAttrs implements Attrs, AdjustableTitles
 		this.leftTopCorner = leftTopCorner;
 		this.measurements = measurements;
 	}
-	
+
 	public Locale getLocale()
 	{
 		return locale;
@@ -90,10 +90,10 @@ public class WindowAttrs implements Attrs, AdjustableTitles
 			JOptionPane.showMessageDialog(null, getComponentTitle("Fail_Save_Window_Attrs"),
 								  getComponentTitle("Warning"), JOptionPane.WARNING_MESSAGE);
 	}
-	
+
 	@Override
-	public String getComponentTitle(String key)
+	public String getComponentTitle(String titleKey)
 	{
-		return ResourceManager.getInstance().getBundle().getString(key);
+		return ResourceManager.getInstance().getBundle().getString(titleKey);
 	}
 }

@@ -1,15 +1,15 @@
 package org.dav.pseudoavj.model;
 
 import org.dav.pseudoavj.ResourceManager;
-import org.dav.pseudoavj.view.AdjustableTitles;
+import org.dav.pseudoavj.view.TitleGetter;
 
 import javax.swing.table.AbstractTableModel;
-import java.io.File;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class FileMetaDataTableModel extends AbstractTableModel implements AdjustableTitles
+public class FileMetaDataTableModel extends AbstractTableModel implements TitleGetter
 {
     private List<FileMetaData> data;
     

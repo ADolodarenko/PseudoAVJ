@@ -2,12 +2,13 @@ package org.dav.pseudoavj.model;
 
 import org.dav.pseudoavj.ResourceManager;
 import org.dav.pseudoavj.util.AttrsKeeper;
-import org.dav.pseudoavj.view.AdjustableTitles;
+import org.dav.pseudoavj.view.TitleGetter;
 
 import javax.swing.*;
+import java.awt.*;
 import java.nio.file.attribute.FileTime;
 
-public class FileAttrs implements Attrs, AdjustableTitles
+public class FileAttrs implements Attrs, TitleGetter
 {
 	private String nameMask;
 	private FileVisibility visibility;
