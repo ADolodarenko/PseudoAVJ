@@ -7,7 +7,6 @@ import org.dav.pseudoavj.util.PropertiesAttrsKeeper;
 import org.dav.pseudoavj.ResourceManager;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -21,7 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
-public class PAVFrame extends JFrame implements ResultView<Object, List<Object>, IntPair>, TitleAdjuster, TitleGetter
+public class PAVFrame extends JFrame implements ResultView<Object, List<Object>, IntPair>, TitleGetter
 {
 	private static final int MIN_WIDTH = 400;
 	private static final int MIN_HEIGHT = 300;
@@ -57,76 +56,13 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	
 	private JLabel statusLine;
 	
-	private Map<Component, String> titledComponents;
+	private TitleAdjuster titleAdjuster;
 	
 	public PAVFrame()
 	{
 		initComponents();
 	}
-
-	@Override
-	public void setComponentTitle(Component component, String titleKey)
-	{
-		if (component == null || titleKey == null)
-			return;
-
-		String className = component.getClass().getSimpleName();
-		String title = getComponentTitle(titleKey);
-
-		if ("JLabel".equals(className))
-			((JLabel) component).setText(title);
-		else if ("JButton".equals(className))
-			((JButton) component).setText(title);
-		else if ("JMenuItem".equals(className))
-			((JMenuItem) component).setText(title);
-		else if ("JPanel".equals(className))
-		{
-			Border border = ((JPanel) component).getBorder();
-
-			if (border != null)
-			{
-				String borderClassName = border.getClass().getSimpleName();
-
-				if ("TitledBorder".equals(borderClassName))
-				{
-					((TitledBorder) border).setTitle(title);
-
-					component.repaint();
-				}
-			}
-		}
-		else if ("PAVFrame".equals(className))
-			((JFrame) component).setTitle(title);
-	}
-
-	@Override
-	public void changeComponentTitle(Component component, String titleKey)
-	{
-		setComponentTitle(component, titleKey);
-		registerComponent(component, titleKey);
-	}
 	
-	@Override
-	public void registerComponent(Component component, String titleKey)
-	{
-		if (component == null || titleKey == null)
-			return;
-		
-		titledComponents.put(component, titleKey);
-	}
-	
-	@Override
-	public void resetComponents()
-	{
-		for (Map.Entry<Component, String> entry : titledComponents.entrySet())
-		{
-			Component component = entry.getKey();
-			String titleKey = entry.getValue();
-
-			setComponentTitle(component, titleKey);
-		}
-	}
-
 	private void initComponents()
 	{
 		loadProperties();
@@ -145,9 +81,9 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		
 		initMenus();
 
-		registerComponent(this, "Main_Window_Title");
+		titleAdjuster.registerComponent(this, new Title("Main_Window_Title"));
 
-		resetComponents();
+		titleAdjuster.resetComponents();
 
 		pack();
 		
@@ -311,7 +247,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		
 		ResourceManager.getInstance().setCurrentLocale(windowAttributes.getLocale());
 		
-		titledComponents = new HashMap<>();
+		titleAdjuster = new TitleAdjuster();
 		
 		mustRestart = false;
 	}
@@ -323,7 +259,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 		
 		statusLine = new JLabel();
-		registerComponent(statusLine, "Status_Ready");
+		titleAdjuster.registerComponent(statusLine, new Title("Status_Ready"));
 		panel.add(statusLine, BorderLayout.WEST);
 	
 		return panel;
@@ -357,7 +293,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		tablePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
 				"",
                 TitledBorder.TOP, TitledBorder.CENTER));
-		registerComponent(tablePanel, "Result_Panel_Title");
+		titleAdjuster.registerComponent(tablePanel, new Title("Result_Panel_Title"));
 		tablePanel.add(tablePane, BorderLayout.CENTER);
 		
 		return tablePanel;
@@ -411,7 +347,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		panel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 5));
 		
 		JLabel label = new JLabel();
-		registerComponent(label, "Path_Label_Title");
+		titleAdjuster.registerComponent(label, new Title("Path_Label_Title"));
 		panel.add(label, BorderLayout.WEST);
 		
 		pathTextField = new JTextField(new File(".").getAbsolutePath());
@@ -439,7 +375,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		JPanel panel = new JPanel();
 		
 		searchButton = new JButton();
-		registerComponent(searchButton, "Search_Button_Title");
+		titleAdjuster.registerComponent(searchButton, new Title("Search_Button_Title"));
 		searchButton.setIcon(ResourceManager.getInstance().getImageIcon("search01.png"));
 		searchButton.addActionListener(new ActionListener()
 		{
@@ -467,7 +403,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		panel.add(searchButton);
 		
 		paramsButton = new JButton();
-		registerComponent(paramsButton, "Params_Button_Title");
+		titleAdjuster.registerComponent(paramsButton, new Title("Params_Button_Title"));
 		paramsButton.setIcon(ResourceManager.getInstance().getImageIcon("params_16.png"));
 		paramsButton.addActionListener(new ActionListener()
 		{
@@ -513,7 +449,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 
 	private void repaintGUI()
 	{
-		resetComponents();
+		titleAdjuster.resetComponents();
 		localeButton.setIcon(getLocaleButtonImage());
 		
 		validate();
@@ -542,7 +478,8 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			{
 				ProgressData item = (ProgressData) object;
 
-				statusLine.setText(item.getCurrentDirectory().getAbsolutePath());
+				//statusLine.setText(item.getCurrentDirectory().getAbsolutePath());
+				titleAdjuster.changeComponentTitle(statusLine, new Title(item.getCurrentDirectory().getAbsolutePath()));
 
 				for (Object chunk : chunks)
 				{
@@ -556,7 +493,8 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			{
 				ProgressDataAdvanced item = (ProgressDataAdvanced) object;
 
-				statusLine.setText(item.getCurrentDirectory().getAbsolutePath());
+				//statusLine.setText(item.getCurrentDirectory().getAbsolutePath());
+				titleAdjuster.changeComponentTitle(statusLine, new Title(item.getCurrentDirectory().getAbsolutePath()));
 				
 				for (Object chunk : chunks)
 				{
@@ -600,14 +538,17 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			}
 		}
 		
-		statusLine.setText(String.format(getComponentTitle("Result_Statistics"),
-										 pair.getFirstInt(), pair.getSecondInt()));
+		/*statusLine.setText(String.format(getComponentTitle("Result_Statistics"),
+										 pair.getFirstInt(), pair.getSecondInt()));*/
+		
+		titleAdjuster.changeComponentTitle(statusLine, new Title("Result_Statistics",
+																 pair.getFirstInt(), pair.getSecondInt()));
 	}
 
 	@Override
 	public void activateControls()
 	{
-		changeComponentTitle(searchButton, "Search_Button_Title");
+		titleAdjuster.changeComponentTitle(searchButton, new Title("Search_Button_Title"));
 		searchButton.setIcon(ResourceManager.getInstance().getImageIcon("search01.png"));
 
 		setControlsEnabled(true);
@@ -616,7 +557,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	@Override
 	public void blockControls()
 	{
-		changeComponentTitle(searchButton, "Stop_Button_Title");
+		titleAdjuster.changeComponentTitle(searchButton, new Title("Stop_Button_Title"));
 		searchButton.setIcon(ResourceManager.getInstance().getImageIcon("cancel_16.png"));
 
 		setControlsEnabled(false);
@@ -638,7 +579,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			tableModel.clear();
 
 		if (statusLine != null)
-			changeComponentTitle(statusLine, "Status_Ready");
+			titleAdjuster.changeComponentTitle(statusLine, new Title("Status_Ready"));
 	}
 	
 	private void locateSelectedFiles()
@@ -704,7 +645,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		FilesTableMenu()
 		{
 			locateFileMenu = new JMenuItem();
-			registerComponent(locateFileMenu, "Locate_Menu_Title");
+			titleAdjuster.registerComponent(locateFileMenu, new Title("Locate_Menu_Title"));
 			locateFileMenu.addActionListener(new ActionListener()
 			{
 				@Override
@@ -716,7 +657,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			add(locateFileMenu);
 
 			deleteFileMenu = new JMenuItem();
-			registerComponent(deleteFileMenu, "Delete_Menu_Title");
+			titleAdjuster.registerComponent(deleteFileMenu, new Title("Delete_Menu_Title"));
 			deleteFileMenu.addActionListener(new ActionListener()
 			{
 				@Override
