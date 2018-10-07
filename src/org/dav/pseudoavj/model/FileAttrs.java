@@ -1,14 +1,12 @@
 package org.dav.pseudoavj.model;
 
-import org.dav.pseudoavj.ResourceManager;
 import org.dav.pseudoavj.util.AttrsKeeper;
-import org.dav.pseudoavj.view.TitleGetter;
+import org.dav.pseudoavj.view.Title;
 
 import javax.swing.*;
-import java.awt.*;
 import java.nio.file.attribute.FileTime;
 
-public class FileAttrs implements Attrs, TitleGetter
+public class FileAttrs implements Attrs
 {
 	private String nameMask;
 	private FileVisibility visibility;
@@ -72,8 +70,10 @@ public class FileAttrs implements Attrs, TitleGetter
 		if (keeper != null)
 			saved = keeper.save(this);
 
-		if (!saved) JOptionPane.showMessageDialog(null, getComponentTitle("Fail_Save_Search_Attrs"),
-				getComponentTitle("Warning"), JOptionPane.WARNING_MESSAGE);
+		if (!saved) JOptionPane.showMessageDialog(null,
+												  Title.getTitleString("Fail_Save_Search_Attrs"),
+												  Title.getTitleString("Warning"),
+												  JOptionPane.WARNING_MESSAGE);
 	}
 	
 	@Override
@@ -84,14 +84,10 @@ public class FileAttrs implements Attrs, TitleGetter
 		if (keeper != null)
 			loaded = keeper.load(this);
 		
-		if (!loaded) JOptionPane.showMessageDialog(null, getComponentTitle("Fail_Load_Search_Attrs"),
-												   getComponentTitle("Warning"), JOptionPane.WARNING_MESSAGE);
-	}
-	
-	@Override
-	public String getComponentTitle(String key)
-	{
-		return ResourceManager.getInstance().getBundle().getString(key);
+		if (!loaded) JOptionPane.showMessageDialog(null,
+												   Title.getTitleString("Fail_Load_Search_Attrs"),
+												   Title.getTitleString("Warning"),
+												   JOptionPane.WARNING_MESSAGE);
 	}
 	
 	public class FileTimePeriod

@@ -1,15 +1,13 @@
 package org.dav.pseudoavj.model;
 
-import org.dav.pseudoavj.ResourceManager;
-import org.dav.pseudoavj.view.TitleGetter;
+import org.dav.pseudoavj.view.Title;
 
 import javax.swing.table.AbstractTableModel;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class FileMetaDataTableModel extends AbstractTableModel implements TitleGetter
+public class FileMetaDataTableModel extends AbstractTableModel
 {
     private List<FileMetaData> data;
     
@@ -80,15 +78,15 @@ public class FileMetaDataTableModel extends AbstractTableModel implements TitleG
         switch (column)
         {
             case 0:
-                return getComponentTitle(FileMetaData.FILE_NAME_STRING);
+                return Title.getTitleString(FileMetaData.FILE_NAME_STRING);
             case 1:
-                return getComponentTitle(FileMetaData.HIDDEN_STRING);
+                return Title.getTitleString(FileMetaData.HIDDEN_STRING);
             case 2:
-                return getComponentTitle(FileMetaData.CREATED_STRING);
+                return Title.getTitleString(FileMetaData.CREATED_STRING);
             case 3:
-                return getComponentTitle(FileMetaData.LAST_MODIFIED_STRING);
+                return Title.getTitleString(FileMetaData.LAST_MODIFIED_STRING);
             case 4:
-                return getComponentTitle(FileMetaData.LAST_ACCESSED_STRING);
+                return Title.getTitleString(FileMetaData.LAST_ACCESSED_STRING);
                 default:
                     return null;
         }
@@ -136,11 +134,5 @@ public class FileMetaDataTableModel extends AbstractTableModel implements TitleG
         data.clear();
         if (index1 >= 0)
             fireTableRowsDeleted(0, index1);
-    }
-
-    @Override
-    public String getComponentTitle(String key)
-    {
-        return ResourceManager.getInstance().getBundle().getString(key);
     }
 }

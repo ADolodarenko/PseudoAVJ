@@ -6,10 +6,24 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.MissingResourceException;
 
-public class Title implements TitleGetter
+public class Title
 {
 	private String key;
 	private List<Object> params;
+	
+	public static String getTitleString(String titleKey)
+	{
+		String result = null;
+		
+		try
+		{
+			result = ResourceManager.getInstance().getBundle().getString(titleKey);
+		}
+		catch (MissingResourceException e)
+		{}
+		
+		return result;
+	}
 	
 	public Title(String key)
 	{
@@ -32,7 +46,7 @@ public class Title implements TitleGetter
 	
 	public String getText()
 	{
-		String text = getComponentTitle(key);
+		String text = getTitleString(key);
 		
 		if (text == null)
 			return key;
@@ -40,21 +54,5 @@ public class Title implements TitleGetter
 			return text;
 		else
 			return String.format(text, params.toArray());
-	
-	}
-	
-	@Override
-	public String getComponentTitle(String titleKey)
-	{
-		String result = null;
-		
-		try
-		{
-			result = ResourceManager.getInstance().getBundle().getString(titleKey);
-		}
-		catch (MissingResourceException e)
-		{}
-		
-		return result;
 	}
 }

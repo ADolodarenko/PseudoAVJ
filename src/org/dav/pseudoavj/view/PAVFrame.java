@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
-public class PAVFrame extends JFrame implements ResultView<Object, List<Object>, IntPair>, TitleGetter
+public class PAVFrame extends JFrame implements ResultView<Object, List<Object>, IntPair>
 {
 	private static final int MIN_WIDTH = 400;
 	private static final int MIN_HEIGHT = 300;
@@ -47,7 +47,6 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	private JButton paramsButton;
 	private JButton localeButton;
 	private DefaultListModel<String> listModel;
-	private JList<String> filesList;
 	
 	private JPopupMenu popupMenu;
 	
@@ -77,8 +76,6 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		add(initStatusBar(), BorderLayout.SOUTH);
 		add(initTablePanel());
 		
-		//add(initListPane());
-		
 		initMenus();
 
 		titleAdjuster.registerComponent(this, new Title("Main_Window_Title"));
@@ -100,8 +97,8 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		}
 		catch (IOException e)
 		{
-			JOptionPane.showMessageDialog(this, getComponentTitle("Fail_Load_Properties"),
-										  getComponentTitle("Warning"), JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, Title.getTitleString("Fail_Load_Properties"),
+										  Title.getTitleString("Warning"), JOptionPane.WARNING_MESSAGE);
 		}
 	}
 	
@@ -113,8 +110,8 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		}
 		catch (IOException e)
 		{
-			JOptionPane.showMessageDialog(this, getComponentTitle("Fail_Save_Properties"),
-													  getComponentTitle("Warning"), JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, Title.getTitleString("Fail_Save_Properties"),
+										  Title.getTitleString("Warning"), JOptionPane.WARNING_MESSAGE);
 		}
 	}
 	
@@ -265,27 +262,13 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		return panel;
 	}
 	
-	private JScrollPane initListPane()
-	{
-		listModel = new DefaultListModel<>();
-		
-		filesList = new JList<>(listModel);
-		filesList.setVisibleRowCount(ROWS);
-		
-		return new JScrollPane(filesList);
-	}
-	
 	private JPanel initTablePanel()
 	{
 		tableModel = new FileMetaDataTableModel();
 		filesTable = new JTable(tableModel);
 		addListeners(filesTable);
 		
-		TableColumnModel columnModel = filesTable.getColumnModel();
-		TableCellRenderer renderer = new FormatRenderer(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss"));
-		
-		for (int i = 2; i < columnModel.getColumnCount(); i++)
-			columnModel.getColumn(i).setCellRenderer(renderer);
+		setTableCellsFormat();
 		
 		JScrollPane tablePane = new JScrollPane(filesTable);
 		
@@ -297,6 +280,15 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 		tablePanel.add(tablePane, BorderLayout.CENTER);
 		
 		return tablePanel;
+	}
+	
+	private void setTableCellsFormat()
+	{
+		TableColumnModel columnModel = filesTable.getColumnModel();
+		TableCellRenderer renderer = new FormatRenderer(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss"));
+		
+		for (int i = 2; i < columnModel.getColumnCount(); i++)
+			columnModel.getColumn(i).setCellRenderer(renderer);
 	}
 	
 	private void addListeners(JTable table)
@@ -382,7 +374,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				if (searchButton.getText().equals(getComponentTitle("Search_Button_Title")))
+				if (searchButton.getText().equals(Title.getTitleString("Search_Button_Title")))
 				{
 					clearResults();
 
@@ -450,6 +442,10 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 	private void repaintGUI()
 	{
 		titleAdjuster.resetComponents();
+		
+		tableModel.fireTableStructureChanged();
+		setTableCellsFormat();
+		
 		localeButton.setIcon(getLocaleButtonImage());
 		
 		validate();
@@ -477,8 +473,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			if (object instanceof ProgressData)
 			{
 				ProgressData item = (ProgressData) object;
-
-				//statusLine.setText(item.getCurrentDirectory().getAbsolutePath());
+				
 				titleAdjuster.changeComponentTitle(statusLine, new Title(item.getCurrentDirectory().getAbsolutePath()));
 
 				for (Object chunk : chunks)
@@ -492,8 +487,7 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 			else if (object instanceof ProgressDataAdvanced)
 			{
 				ProgressDataAdvanced item = (ProgressDataAdvanced) object;
-
-				//statusLine.setText(item.getCurrentDirectory().getAbsolutePath());
+				
 				titleAdjuster.changeComponentTitle(statusLine, new Title(item.getCurrentDirectory().getAbsolutePath()));
 				
 				for (Object chunk : chunks)
@@ -537,9 +531,6 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 				}
 			}
 		}
-		
-		/*statusLine.setText(String.format(getComponentTitle("Result_Statistics"),
-										 pair.getFirstInt(), pair.getSecondInt()));*/
 		
 		titleAdjuster.changeComponentTitle(statusLine, new Title("Result_Statistics",
 																 pair.getFirstInt(), pair.getSecondInt()));
@@ -630,12 +621,6 @@ public class PAVFrame extends JFrame implements ResultView<Object, List<Object>,
 				tableModel.remove(row);
 		}
 	}
-
-    @Override
-    public String getComponentTitle(String titleKey)
-    {
-        return ResourceManager.getInstance().getBundle().getString(titleKey);
-    }
 
     class FilesTableMenu extends JPopupMenu
 	{

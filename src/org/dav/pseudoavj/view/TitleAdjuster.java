@@ -28,6 +28,8 @@ public class TitleAdjuster
 			((JLabel) component).setText(text);
 		else if ("JButton".equals(className))
 			((JButton) component).setText(text);
+		else if ("JCheckBox".equals(className))
+			((JCheckBox) component).setText(text);
 		else if ("JMenuItem".equals(className))
 			((JMenuItem) component).setText(text);
 		else if ("JPanel".equals(className))
@@ -48,6 +50,8 @@ public class TitleAdjuster
 		}
 		else if (component instanceof JFrame)
 			((JFrame) component).setTitle(text);
+		else if (component instanceof JDialog)
+			((JDialog) component).setTitle(text);
 	}
 	
     public void changeComponentTitle(Component component, Title title)

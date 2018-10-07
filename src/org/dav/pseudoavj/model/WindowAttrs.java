@@ -1,14 +1,13 @@
 package org.dav.pseudoavj.model;
 
-import org.dav.pseudoavj.ResourceManager;
 import org.dav.pseudoavj.util.AttrsKeeper;
-import org.dav.pseudoavj.view.TitleGetter;
+import org.dav.pseudoavj.view.Title;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Locale;
 
-public class WindowAttrs implements Attrs, TitleGetter
+public class WindowAttrs implements Attrs
 {
 	private Locale locale;
 	private boolean maximized;
@@ -74,8 +73,10 @@ public class WindowAttrs implements Attrs, TitleGetter
 			loaded = keeper.load(this);
 		
 		if (!loaded)
-			JOptionPane.showMessageDialog(null, getComponentTitle("Fail_Load_Window_Attrs"),
-								   getComponentTitle("Warning"), JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(null,
+										  Title.getTitleString("Fail_Load_Window_Attrs"),
+										  Title.getTitleString("Warning"),
+										  JOptionPane.WARNING_MESSAGE);
 	}
 	
 	@Override
@@ -87,13 +88,9 @@ public class WindowAttrs implements Attrs, TitleGetter
 			saved = keeper.save(this);
 		
 		if (!saved)
-			JOptionPane.showMessageDialog(null, getComponentTitle("Fail_Save_Window_Attrs"),
-								  getComponentTitle("Warning"), JOptionPane.WARNING_MESSAGE);
-	}
-
-	@Override
-	public String getComponentTitle(String titleKey)
-	{
-		return ResourceManager.getInstance().getBundle().getString(titleKey);
+			JOptionPane.showMessageDialog(null,
+										  Title.getTitleString("Fail_Save_Window_Attrs"),
+										  Title.getTitleString("Warning"),
+										  JOptionPane.WARNING_MESSAGE);
 	}
 }

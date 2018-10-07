@@ -9,7 +9,7 @@ import java.awt.event.*;
 import java.util.Calendar;
 import java.util.Date;
 
-public class AttrDialog extends JDialog implements TitleGetter
+public class AttrDialog extends JDialog
 {
     public static final int OK_OPTION = 1;
     public static final int CANCEL_OPTION = 0;
@@ -28,6 +28,7 @@ public class AttrDialog extends JDialog implements TitleGetter
 	private JButton saveButton;
 	private JButton cancelButton;
 	
+	private TitleAdjuster titleAdjuster;
 	
 	public AttrDialog(JFrame owner)
 	{
@@ -50,6 +51,9 @@ public class AttrDialog extends JDialog implements TitleGetter
 			@Override
 			public void windowActivated(WindowEvent e)
 			{
+				titleAdjuster.resetComponents();
+				validate();
+				
 				buildInterfaceValues();
 
 				if (maskTextField != null)
@@ -67,16 +71,17 @@ public class AttrDialog extends JDialog implements TitleGetter
 
     private void initComponents()
 	{
-		setTitle(getComponentTitle("Attrs_Dialog_Title"));
+		titleAdjuster = new TitleAdjuster();
+		
+		titleAdjuster.registerComponent(this, new Title("Attrs_Dialog_Title"));
 
 		JPanel dataPanel = new JPanel();
 		dataPanel.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
 		GridBagLayout dataLayout = new GridBagLayout();
 		dataPanel.setLayout(dataLayout);
 
-		GridBagConstraints constraints = new GridBagConstraints();
-
-		maskCheck = new JCheckBox(getComponentTitle("Attrs_Check_Mask_Title"));
+		maskCheck = new JCheckBox();
+		titleAdjuster.registerComponent(maskCheck, new Title("Attrs_Check_Mask_Title"));
 		maskCheck.addItemListener(new ItemListener()
 		{
 			@Override
@@ -86,31 +91,20 @@ public class AttrDialog extends JDialog implements TitleGetter
 					maskTextField.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
-
-		constraints.gridx = 0;
-		constraints.gridy = 0;
-		constraints.gridwidth = 1;
-		constraints.gridheight = 1;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.weightx = 0.2;
-
-		dataPanel.add(maskCheck, constraints);
+		
+		dataPanel.add(maskCheck, new UsableGBC(0, 0, 1, 1).
+				setFill(GridBagConstraints.HORIZONTAL).setWeightX(0.2));
 
 		maskTextField = new JTextField(20);
-
-		constraints.gridx = 1;
-		constraints.gridy = 0;
-		constraints.gridwidth = 1;
-		constraints.gridheight = 1;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.weightx = 0.8;
-
-		dataPanel.add(maskTextField, constraints);
+		
+		dataPanel.add(maskTextField, new UsableGBC(1, 0, 1, 1).
+				setFill(GridBagConstraints.HORIZONTAL).setWeightX(0.8));
 
 		maskCheck.setSelected(true);
 
 		//Visibility
-		visibilityCheck = new JCheckBox(getComponentTitle("Attrs_Check_Visibility_Title"));
+		visibilityCheck = new JCheckBox();
+		titleAdjuster.registerComponent(visibilityCheck, new Title("Attrs_Check_Visibility_Title"));
 		visibilityCheck.addItemListener(new ItemListener()
 		{
 			@Override
@@ -120,28 +114,21 @@ public class AttrDialog extends JDialog implements TitleGetter
 					visibilityCombo.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
-		constraints.gridx = 0;
-		constraints.gridy = 1;
-		constraints.gridwidth = 1;
-		constraints.gridheight = 1;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.weightx = 0.2;
-		dataPanel.add(visibilityCheck, constraints);
+		
+		dataPanel.add(visibilityCheck, new UsableGBC(0, 1, 1, 1).
+				setFill(GridBagConstraints.HORIZONTAL).setWeightX(0.2));
 
 		visibilityCombo = new JComboBox<>(FileAttrs.FileVisibility.values());
-		constraints.gridx = 1;
-		constraints.gridy = 1;
-		constraints.gridwidth = 1;
-		constraints.gridheight = 1;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.weightx = 0.8;
-		dataPanel.add(visibilityCombo, constraints);
+		
+		dataPanel.add(visibilityCombo, new UsableGBC(1, 1, 1, 1).
+				setFill(GridBagConstraints.HORIZONTAL).setWeightX(0.8));
 
 		visibilityCheck.setSelected(false);
 		visibilityCombo.setEnabled(false);
 
 		//File time
-		fileTimeCheck = new JCheckBox(getComponentTitle("Attrs_Check_DateTime_Title"));
+		fileTimeCheck = new JCheckBox();
+		titleAdjuster.registerComponent(fileTimeCheck, new Title("Attrs_Check_DateTime_Title"));
 		fileTimeCheck.addItemListener(new ItemListener()
 		{
 			@Override
@@ -154,14 +141,9 @@ public class AttrDialog extends JDialog implements TitleGetter
 					dateTimeSpinnerTo.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
 			}
 		});
-		constraints.gridx = 0;
-		constraints.gridy = 2;
-		constraints.gridwidth = 1;
-		constraints.gridheight = 1;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.weightx = 0.2;
-
-		dataPanel.add(fileTimeCheck, constraints);
+		
+		dataPanel.add(fileTimeCheck, new UsableGBC(0, 2, 1, 1).
+				setFill(GridBagConstraints.HORIZONTAL).setWeightX(0.2));
 
 		Date date = new Date();
 
@@ -178,24 +160,23 @@ public class AttrDialog extends JDialog implements TitleGetter
 		JPanel timePanel = new JPanel(new GridLayout(1, 2));
 
 		JPanel fromPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		fromPanel.add(new JLabel(getComponentTitle("Attrs_Check_DateTime_From")));
+		JLabel label = new JLabel();
+		titleAdjuster.registerComponent(label, new Title("Attrs_Check_DateTime_From"));
+		fromPanel.add(label);
 		fromPanel.add(dateTimeSpinnerFrom);
 
 		timePanel.add(fromPanel);
 
 		JPanel toPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		toPanel.add(new JLabel(getComponentTitle("Attrs_Check_DateTime_To")));
+		label = new JLabel();
+		titleAdjuster.registerComponent(label, new Title("Attrs_Check_DateTime_To"));
+		toPanel.add(label);
 		toPanel.add(dateTimeSpinnerTo);
 
 		timePanel.add(toPanel);
 
-		constraints.gridx = 1;
-		constraints.gridy = 2;
-		constraints.gridwidth = 1;
-		constraints.gridheight = 1;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.weightx = 0.8;
-		dataPanel.add(timePanel, constraints);
+		dataPanel.add(timePanel, new UsableGBC(1, 2, 1, 1).
+				setFill(GridBagConstraints.HORIZONTAL).setWeightX(0.8));
 
 		fileTimeCheck.setSelected(true);
 
@@ -204,7 +185,8 @@ public class AttrDialog extends JDialog implements TitleGetter
 		//
 		JPanel commandPanel = new JPanel();
 
-		saveButton = new JButton(getComponentTitle("Attrs_Save_Button_Title"));
+		saveButton = new JButton();
+		titleAdjuster.registerComponent(saveButton, new Title("Attrs_Save_Button_Title"));
 		saveButton.setIcon(ResourceManager.getInstance().getImageIcon("ok_16.png"));
 		saveButton.addActionListener(new ActionListener()
 		{
@@ -218,7 +200,8 @@ public class AttrDialog extends JDialog implements TitleGetter
 		});
 		commandPanel.add(saveButton);
 
-		cancelButton = new JButton(getComponentTitle("Attrs_Cancel_Button_Title"));
+		cancelButton = new JButton();
+		titleAdjuster.registerComponent(cancelButton, new Title("Attrs_Cancel_Button_Title"));
 		cancelButton.setIcon(ResourceManager.getInstance().getImageIcon("cancel_16.png"));
 		cancelButton.addActionListener(new ActionListener()
 		{
@@ -231,7 +214,9 @@ public class AttrDialog extends JDialog implements TitleGetter
 		commandPanel.add(cancelButton);
 
 		add(commandPanel, BorderLayout.SOUTH);
-
+		
+		titleAdjuster.resetComponents();
+		
 		pack();
 		setResizable(false);
 	}
@@ -284,11 +269,5 @@ public class AttrDialog extends JDialog implements TitleGetter
 	public void setAttrs(FileAttrs attrs)
 	{
 		attributes = attrs;
-	}
-
-	@Override
-	public String getComponentTitle(String key)
-	{
-		return ResourceManager.getInstance().getBundle().getString(key);
 	}
 }
