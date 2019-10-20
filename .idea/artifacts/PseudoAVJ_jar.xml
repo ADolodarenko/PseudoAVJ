@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="PseudoAVJ:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/PseudoAVJ_jar</output-path>
+    <root id="archive" name="PseudoAVJ.jar">
+      <element id="module-output" name="PseudoAVJ" />
+    </root>
+  </artifact>
+</component>
